@@ -1,967 +1,379 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAE System</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
-:root{
-  --bg:#f5f4f1;--surface:#fff;--surface2:#f9f8f6;--border:#e8e6e1;--border2:#d4d1cb;
-  --text:#1a1917;--text2:#6b6860;--text3:#a09d97;
-  --blue:#1d4ed8;--bl:#eff6ff;--blm:#bfdbfe;
-  --green:#15803d;--gl:#f0fdf4;
-  --amber:#b45309;--al:#fffbeb;
-  --red:#b91c1c;--rl:#fef2f2;
-  --mono:'JetBrains Mono',monospace;
-}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
-.app{display:flex;min-height:100vh;}
-
-/* SIDEBAR */
-.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
-.logo{padding:20px 20px 14px;border-bottom:1px solid var(--border);}
-.logo-mark{font-size:15px;font-weight:600;letter-spacing:-0.3px;}
-.logo-mark span{color:var(--blue);}
-.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono);}
-.nav{padding:10px 10px;flex:1;}
-.nav-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:10px 10px 4px;}
-.nb{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);border:none;background:none;width:100%;text-align:left;transition:all .1s;margin-bottom:1px;font-family:'Inter',sans-serif;}
-.nb:hover{background:var(--surface2);color:var(--text);}
-.nb.active{background:var(--bl);color:var(--blue);font-weight:500;}
-.nb svg{width:14px;height:14px;flex-shrink:0;opacity:.7;}
-.nb.active svg{opacity:1;}
-.sb-stats{padding:14px;border-top:1px solid var(--border);}
-.ms{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;}
-.ms-l{color:var(--text3);}
-.ms-v{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--blue);}
-
-/* MAIN */
-.main{margin-left:220px;flex:1;}
-.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50;}
-.tb-title{font-size:14px;font-weight:600;}
-.tb-sub{font-size:12px;color:var(--text3);}
-.tb-right{display:flex;gap:8px;}
-.content{padding:24px;}
-
-/* BTNS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .1s;font-family:'Inter',sans-serif;white-space:nowrap;}
-.btn-primary{background:var(--blue);color:#fff;}
-.btn-primary:hover{background:#1e40af;}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
-.btn-ghost:hover{background:var(--surface2);color:var(--text);}
-.btn-success{background:var(--green);color:#fff;}
-.btn-success:hover{background:#166534;}
-.btn-danger{background:var(--red);color:#fff;}
-.btn-amber{background:var(--amber);color:#fff;}
-.btn-amber:hover{background:#92400e;}
-.btn-sm{padding:5px 10px;font-size:12px;}
-
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
-.card-sm{padding:14px;}
-
-/* STATS */
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
-.stat-l{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
-.stat-v{font-size:28px;font-weight:300;color:var(--text);font-family:var(--mono);letter-spacing:-1px;line-height:1;}
-.stat-d{font-size:11px;color:var(--text3);margin-top:6px;}
-.stat.blue .stat-v{color:var(--blue);}
-.stat.green .stat-v{color:var(--green);}
-.stat.amber .stat-v{color:var(--amber);}
-
-/* TABLE */
-.tc{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-table{width:100%;border-collapse:collapse;}
-th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);}
-td{padding:11px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--surface2);}
-.nc{font-weight:500;color:var(--text);font-size:13px;}
-.sc{font-size:11px;color:var(--text3);margin-top:1px;font-family:var(--mono);}
-.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;}
-.bb{background:var(--bl);color:var(--blue);}
-.bg{background:var(--gl);color:var(--green);}
-.ba{background:var(--al);color:var(--amber);}
-
-/* FORM */
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.fg3{grid-template-columns:1fr 1fr 1fr;}
-.fg4{grid-template-columns:1fr 1fr 1fr 1fr;}
-.full{grid-column:1/-1;}
-.field{display:flex;flex-direction:column;gap:4px;}
-.fl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-.fi,.fs{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border .1s;width:100%;}
-.fi:focus,.fs:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--bl);}
-.fi::placeholder{color:var(--text3);}
-.fi.mono{font-family:var(--mono);font-size:12px;}
-.fs option{background:#fff;}
-
-/* INCIDÊNCIAS */
-.inc-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.inc-head{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-.inc-row{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--border);}
-.inc-row:last-child{border-bottom:none;}
-.inc-row:hover{background:var(--surface2);}
-.inc-n{font-family:var(--mono);font-size:11px;color:var(--text3);text-align:right;}
-.inc-name{font-size:12px;color:var(--text2);}
-.inc-inp{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:12px;color:var(--text);width:100%;text-align:right;outline:none;}
-.inc-inp:focus{border-color:var(--blue);}
-.inc-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
-.inc-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .2s;}
-.inc-foot{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;padding:8px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:12px;font-weight:500;}
-
-/* CRONO */
-.crono-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.crono-head{display:grid;grid-template-columns:80px 1fr 1fr 1fr 1fr;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
-.crono-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--border);}
-.crono-row:last-child{border-bottom:none;}
-.crono-row:hover{background:var(--surface2);}
-.crono-lbl{font-size:12px;font-weight:500;color:var(--text2);}
-.crono-inp{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:12px;color:var(--text);width:100%;text-align:right;outline:none;}
-.crono-inp:focus{border-color:var(--blue);}
-
-/* PROGRESS BAR */
-.prog-wrap{background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin-top:4px;}
-.prog-fill{height:100%;border-radius:4px;transition:width .3s;}
-
-/* STEP INDICATOR */
-.steps{display:flex;gap:0;margin-bottom:24px;}
-.step{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:12px;font-weight:500;color:var(--text3);border-bottom:2px solid var(--border);flex:1;cursor:default;}
-.step.active{color:var(--blue);border-bottom-color:var(--blue);}
-.step.done{color:var(--green);border-bottom-color:var(--green);}
-.step-dot{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text3);flex-shrink:0;}
-.step.active .step-dot{background:var(--blue);color:#fff;}
-.step.done .step-dot{background:var(--green);color:#fff;}
-
-/* SECTION */
-.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.sec-title{font-size:13px;font-weight:600;color:var(--text);}
-.sec-sub{font-size:12px;color:var(--text3);margin-top:2px;}
-.divider{height:1px;background:var(--border);margin:20px 0;}
-
-/* INFO BOX */
-.info-box{background:var(--bl);border:1px solid var(--blm);border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;}
-.info-box-text{font-size:12px;color:var(--blue);line-height:1.5;}
-
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(26,25,23,.4);z-index:200;display:flex;align-items:center;justify-content:center;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:92%;max-width:620px;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.1);}
-.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
-
-/* TOAST */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;}
-.toast.show{opacity:1;transform:translateY(0);}
-.toast.success{border-left:3px solid var(--green);}
-.toast.error{border-left:3px solid var(--red);}
-.toast.info{border-left:3px solid var(--blue);}
-
-/* EMPTY */
-.empty{text-align:center;padding:48px 24px;color:var(--text3);}
-.empty-title{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px;}
-.empty-sub{font-size:12px;line-height:1.6;}
-
-/* CONFIRM BOX */
-.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
-.confirm-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
-.confirm-row:last-child{border-bottom:none;}
-.confirm-key{color:var(--text3);font-size:12px;}
-.confirm-val{color:var(--text);font-weight:500;font-family:var(--mono);font-size:12px;}
-
-.hidden{display:none!important;}
-.page{display:none;}
-.page.active{display:block;}
-.mt{margin-top:12px;}
-.mb{margin-bottom:12px;}
-.mb2{margin-bottom:20px;}
-.mono{font-family:var(--mono);}
-.green{color:var(--green);}
-.blue{color:var(--blue);}
-.amber{color:var(--amber);}
-.red{color:var(--red);}
-
-/* PREVIEW SECTION */
-.preview-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
-.preview-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
-.preview-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
-.preview-body{padding:16px;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preenchimento Automático de RAE</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --primary: #1d4ed8;
+      --primary-soft: #dbeafe;
+      --success: #166534;
+      --success-soft: #dcfce7;
+      --warning: #b45309;
+      --warning-soft: #fef3c7;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      color: var(--text);
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 28px; }
+    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
+    .hero h1 { margin: 0 0 10px; font-size: 34px; line-height: 1.1; }
+    .hero p { margin: 0; color: var(--muted); max-width: 700px; font-size: 15px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.75);
+      border: 1px solid rgba(255,255,255,.8); backdrop-filter: blur(12px); border-radius: 999px;
+      padding: 10px 14px; color: var(--primary); font-weight: 600; box-shadow: var(--shadow); white-space: nowrap;
+    }
+    .grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
+    .card {
+      background: var(--card); border: 1px solid rgba(15, 23, 42, 0.06); border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex;
+      justify-content: space-between; align-items: center; gap: 12px;
+    }
+    .card-header h2 { margin: 0; font-size: 18px; }
+    .card-body { padding: 20px; }
+    .step-list { display: grid; gap: 16px; }
+    .step { border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: #fff; }
+    .step-top {
+      display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px;
+    }
+    .step-title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
+      border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-size: 13px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .status {
+      font-size: 12px; font-weight: 700; border-radius: 999px; padding: 7px 10px; background: #f3f4f6; color: #4b5563;
+    }
+    .status.done { background: var(--success-soft); color: var(--success); }
+    .status.wait { background: var(--warning-soft); color: var(--warning); }
+    .muted { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .upload-box {
+      border: 1.5px dashed #c7d2fe; background: #f8fbff; border-radius: 16px; padding: 16px; display: grid; gap: 12px;
+    }
+    input[type="file"] {
+      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px; font: inherit;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    button {
+      border: none; border-radius: 14px; padding: 13px 16px; font: inherit; font-weight: 700; cursor: pointer; transition: .2s ease;
+    }
+    button.primary { background: var(--primary); color: white; }
+    button.primary:hover { transform: translateY(-1px); }
+    button.secondary { background: #eef2ff; color: #3730a3; }
+    button.ghost { background: #f3f4f6; color: #374151; }
+    button:disabled { opacity: .6; cursor: not-allowed; transform: none !important; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+    .mini { background: #f8fafc; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .mini-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .mini-value { font-weight: 800; font-size: 20px; line-height: 1.2; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    th, td {
+      padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: top;
+    }
+    th { background: #f8fafc; color: #374151; font-size: 12px; letter-spacing: .02em; text-transform: uppercase; }
+    td input { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px 12px; font: inherit; }
+    .log { display: grid; gap: 10px; margin-top: 18px; }
+    .log-item {
+      display: flex; gap: 10px; align-items: flex-start; background: #f8fafc; border: 1px solid var(--line);
+      border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #374151;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); margin-top: 4px; flex-shrink: 0; }
+    .footer-note {
+      margin-top: 18px; padding: 14px 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 14px;
+      color: #9a3412; font-size: 13px; line-height: 1.5;
+    }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .hero { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">rae<span>.</span>system</div>
-    <div class="logo-sub">caixa · acompanhamento</div>
-  </div>
-  <nav class="nav">
-    <div class="nav-lbl">Menu</div>
-    <button class="nb active" onclick="showPage('dashboard')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-      Dashboard
-    </button>
-    <button class="nb" onclick="showPage('novo')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v6M5 8h6"/></svg>
-      Novo Processo
-    </button>
-    <button class="nb" onclick="showPage('clientes')">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 13c0-2 2-3 4-3h6c2 0 4 1 4 3"/><circle cx="8" cy="6" r="3"/></svg>
-      Clientes
-    </button>
-  </nav>
-  <div class="sb-stats">
-    <div class="ms"><span class="ms-l">Total clientes</span><span class="ms-v" id="sb-total">0</span></div>
-    <div class="ms"><span class="ms-l">Este mês</span><span class="ms-v" id="sb-mes">0</span></div>
-    <div class="ms"><span class="ms-l">RAEs gerados</span><span class="ms-v" id="sb-raes">0</span></div>
-  </div>
-</aside>
-
-<main class="main">
-
-<!-- ══════════ DASHBOARD ══════════ -->
-<div id="page-dashboard" class="page active">
-  <div class="topbar">
-    <div><div class="tb-title">Dashboard</div></div>
-    <div class="tb-right"><button class="btn btn-primary btn-sm" onclick="showPage('novo')">+ Novo processo</button></div>
-  </div>
-  <div class="content">
-    <div class="sg">
-      <div class="stat"><div class="stat-l">Clientes</div><div class="stat-v" id="d-total">0</div><div class="stat-d">processos cadastrados</div></div>
-      <div class="stat blue"><div class="stat-l">RAEs gerados</div><div class="stat-v" id="d-raes">0</div><div class="stat-d">planilhas exportadas</div></div>
-      <div class="stat green"><div class="stat-l">Este mês</div><div class="stat-v" id="d-mes">0</div><div class="stat-d">novos processos</div></div>
-      <div class="stat amber"><div class="stat-l">Municípios</div><div class="stat-v" id="d-mun">0</div><div class="stat-d">cidades atendidas</div></div>
-    </div>
-    <div class="sec-row">
-      <div><div class="sec-title">Processos recentes</div></div>
-      <button class="btn btn-ghost btn-sm" onclick="showPage('clientes')">Ver todos →</button>
-    </div>
-    <div class="tc"><div id="dash-table"></div></div>
-  </div>
-</div>
-
-<!-- ══════════ NOVO PROCESSO ══════════ -->
-<div id="page-novo" class="page">
-  <div class="topbar">
-    <div>
-      <div class="tb-title">Novo processo</div>
-      <div class="tb-sub">Preencha os dados da PCI e do Laudo para gerar o RAE</div>
-    </div>
-    <div class="tb-right">
-      <button class="btn btn-ghost btn-sm" onclick="limparForm()">↺ Limpar</button>
-      <button class="btn btn-success" onclick="goPreview()">Revisar e gerar RAE →</button>
-    </div>
-  </div>
-  <div class="content">
-
-    <!-- STEPS -->
-    <div class="steps" id="steps-bar">
-      <div class="step active" id="step-1"><div class="step-dot">1</div> Identificação</div>
-      <div class="step" id="step-2"><div class="step-dot">2</div> Imóvel</div>
-      <div class="step" id="step-3"><div class="step-dot">3</div> Incidências</div>
-      <div class="step" id="step-4"><div class="step-dot">4</div> Cronograma</div>
-      <div class="step" id="step-5"><div class="step-dot">5</div> Revisar</div>
-    </div>
-
-    <!-- STEP 1: IDENTIFICAÇÃO -->
-    <div id="sec-1">
-      <div class="info-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
-        <div class="info-box-text">Dados da <strong>PCI — Proposta de Construção Individual</strong>. Preencha as informações do proponente e do responsável técnico.</div>
+  <div class="container">
+    <div class="hero">
+      <div>
+        <h1>Preenchimento automático de RAE</h1>
+        <p>Interface inicial em HTML para receber o arquivo base, ler o PDF de origem, extrair os principais dados e permitir conferência manual antes da geração do arquivo final.</p>
       </div>
+      <div class="pill">Fluxo base • PDF → Mapeamento → Planilha</div>
+    </div>
 
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Proponente</span></div>
-        <div class="preview-body">
-          <div class="fg mb">
-            <div class="field full"><label class="fl">Nome completo do proponente</label><input class="fi" id="f-nome" placeholder="Ex: DHIEGO CARLOS PEREIRA" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">CPF do proponente</label><input class="fi mono" id="f-cpf" placeholder="416.823.598-08" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Telefone do proponente</label><input class="fi mono" id="f-tel" placeholder="17 98140-5759" oninput="autoSave()"></div>
-          </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <h2>Fluxo do processo</h2>
+          <span class="status wait" id="globalStatus">Aguardando arquivos</span>
         </div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Responsável Técnico pela Execução (RTE)</span></div>
-        <div class="preview-body">
-          <div class="fg">
-            <div class="field full"><label class="fl">Nome do RTE</label><input class="fi" id="f-rte" placeholder="Ex: MATHEUS MENDES PALHARES" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Nº CAU / CREA</label><input class="fi mono" id="f-cau" placeholder="A100491-3" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">UF</label><input class="fi" id="f-uf-rte" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">CPF do RTE</label><input class="fi mono" id="f-cpf-rte" placeholder="404.556.758-56" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Telefone do RTE</label><input class="fi mono" id="f-tel-rte" placeholder="17 99187-2378" oninput="autoSave()"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Vistoria</span></div>
-        <div class="preview-body">
-          <div class="fg">
-            <div class="field"><label class="fl">Finalidade da vistoria</label>
-              <select class="fs" id="f-finalidade" onchange="autoSave()">
-                <option value="Vistoria para aferição de obra">Vistoria para aferição de obra</option>
-                <option value="Vistoria para ateste de conclusão de obra com pendência">Ateste de conclusão</option>
-                <option value="Vistoria final para verificação de requisitos de sustentabilidade">Vistoria final — Sustentabilidade</option>
-                <option value="Vistoria final Reforma Casa com garantia do imóvel">Reforma casa</option>
-              </select>
+        <div class="card-body">
+          <div class="step-list">
+            <div class="step">
+              <div class="step-top">
+                <div class="step-title"><span class="badge">1</span> Arquivo base</div>
+                <span class="status" id="baseStatus">Pendente</span>
+              </div>
+              <div class="upload-box">
+                <div class="muted">Envie o arquivo modelo que será usado para preenchimento.</div>
+                <input type="file" id="baseFile" accept=".xls,.xlsx,.xlsm" />
+                <div class="muted" id="baseFileName">Nenhum arquivo selecionado.</div>
+              </div>
             </div>
-            <div class="field"><label class="fl">Repactuação de prazo?</label>
-              <select class="fs" id="f-repact" onchange="autoSave()">
-                <option value="Não">Não</option>
-                <option value="Sim">Sim</option>
-              </select>
+
+            <div class="step">
+              <div class="step-top">
+                <div class="step-title"><span class="badge">2</span> Documento de origem</div>
+                <span class="status" id="sourceStatus">Pendente</span>
+              </div>
+              <div class="upload-box">
+                <div class="muted">Envie o PDF com os dados que serão extraídos.</div>
+                <input type="file" id="sourceFile" accept="application/pdf" />
+                <div class="muted" id="sourceFileName">Nenhum arquivo selecionado.</div>
+              </div>
             </div>
-            <div class="field"><label class="fl">Data da vistoria</label><input class="fi mono" type="date" id="f-data-vist" oninput="autoSave()"></div>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="goStep(2)">Próximo: Imóvel →</button></div>
-    </div>
 
-    <!-- STEP 2: IMÓVEL -->
-    <div id="sec-2" class="hidden">
-      <div class="info-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M2 6l6-5 6 5v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>
-        <div class="info-box-text">Dados do <strong>imóvel vistoriado</strong> conforme PCI e Laudo de Análise.</div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Endereço</span></div>
-        <div class="preview-body">
-          <div class="fg">
-            <div class="field full"><label class="fl">Endereço</label><input class="fi" id="f-end" placeholder="RUA MANOEL SOILO" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Complemento (Lote / Quadra)</label><input class="fi" id="f-comp" placeholder="LOTE 36, QUADRA H" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Bairro</label><input class="fi" id="f-bairro" placeholder="RESIDENCIAL URUPÊS III" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">CEP</label><input class="fi mono" id="f-cep" placeholder="15852-366" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Município</label><input class="fi" id="f-municipio" placeholder="URUPÊS" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">UF</label><input class="fi" id="f-uf" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Registro / Cartório</span></div>
-        <div class="preview-body">
-          <div class="fg">
-            <div class="field"><label class="fl">Matrícula</label><input class="fi mono" id="f-matricula" placeholder="20.617" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Ofício / Cartório</label><input class="fi" id="f-oficio" placeholder="1ª ORI DE URUPÊS" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Comarca</label><input class="fi" id="f-comarca" placeholder="URUPÊS" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">UF Comarca</label><input class="fi" id="f-uf-comarca" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Valores e Características</span></div>
-        <div class="preview-body">
-          <div class="fg fg4">
-            <div class="field"><label class="fl">Valor do terreno (R$)</label><input class="fi mono" id="f-vt" type="number" placeholder="55000" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Valor do imóvel (R$)</label><input class="fi mono" id="f-vi" type="number" placeholder="210000" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Tipo do imóvel</label>
-              <select class="fs" id="f-tipo" onchange="autoSave()">
-                <option>Casa</option><option>Apartamento</option><option>Outro</option>
-              </select>
-            </div>
-            <div class="field"><label class="fl">Uso do imóvel</label>
-              <select class="fs" id="f-uso" onchange="autoSave()">
-                <option>Residencial</option><option>Comercial</option><option>Misto</option>
-              </select>
+            <div class="step">
+              <div class="step-top">
+                <div class="step-title"><span class="badge">3</span> Processamento</div>
+                <span class="status" id="processStatus">Pendente</span>
+              </div>
+              <div class="muted">Nesta versão, o processamento foi estruturado para demonstrar a lógica do sistema. A extração real do PDF e o preenchimento do Excel devem ser conectados a um backend.</div>
+              <div class="actions">
+                <button class="primary" id="extractBtn">Extrair dados</button>
+                <button class="secondary" id="fillBtn" disabled>Preparar preenchimento</button>
+                <button class="ghost" id="downloadBtn" disabled>Baixar resultado</button>
+              </div>
             </div>
           </div>
-          <div class="fg mt">
-            <div class="field"><label class="fl">Coord. Latitude S (graus e min)</label><input class="fi mono" id="f-lat" placeholder="21°12'58.87''" oninput="autoSave()"></div>
-            <div class="field"><label class="fl">Coord. Longitude W (graus e min)</label><input class="fi mono" id="f-lng" placeholder="49°17'21.99''" oninput="autoSave()"></div>
+
+          <div class="footer-note">
+            Para transformar isso em produção, o ideal é conectar esta tela a um backend que leia o PDF, aplique as regras de mapeamento e devolva o arquivo .xlsm preenchido.
           </div>
         </div>
       </div>
 
-      <div style="display:flex;justify-content:space-between">
-        <button class="btn btn-ghost" onclick="goStep(1)">← Voltar</button>
-        <button class="btn btn-primary" onclick="goStep(3)">Próximo: Incidências →</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: INCIDÊNCIAS -->
-    <div id="sec-3" class="hidden">
-      <div class="info-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M2 12h12M2 8h9M2 4h6"/></svg>
-        <div class="info-box-text">Preencha as <strong>incidências dos 20 serviços</strong> conforme o Orçamento Proposto do Laudo (coluna Peso %). A soma deve ser <strong>100%</strong>.</div>
-      </div>
-
-      <div class="inc-wrap mb2">
-        <div class="inc-head">
-          <span>#</span><span>Serviço</span><span style="text-align:right">Incidência %</span><span style="text-align:right">Exec. Item %</span><span>Distribuição</span>
-        </div>
-        <div id="inc-body"></div>
-        <div class="inc-foot">
-          <span></span>
-          <span style="color:var(--text3)">Total das incidências</span>
-          <span style="text-align:right;font-family:var(--mono)" id="inc-total-val">0,00%</span>
-          <span></span><span></span>
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between">
-        <button class="btn btn-ghost" onclick="goStep(2)">← Voltar</button>
-        <button class="btn btn-primary" onclick="goStep(4)">Próximo: Cronograma →</button>
-      </div>
-    </div>
-
-    <!-- STEP 4: CRONOGRAMA -->
-    <div id="sec-4" class="hidden">
-      <div class="info-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><rect x="1" y="2" width="14" height="13" rx="1"/><path d="M1 6h14M5 1v2M11 1v2"/></svg>
-        <div class="info-box-text">Informe o <strong>cronograma físico-financeiro</strong> do Laudo: % Acumulado Proposto por etapa. O campo de aferido/acatado será preenchido no momento da vistoria.</div>
-      </div>
-
-      <div class="preview-section mb2">
-        <div class="preview-header"><span class="preview-title">Configuração do Cronograma</span></div>
-        <div class="preview-body">
-          <div class="fg">
-            <div class="field"><label class="fl">Prazo de execução (meses)</label><input class="fi mono" id="f-prazo" type="number" min="1" max="48" placeholder="7" value="7" onchange="buildCrono()"></div>
-            <div class="field"><label class="fl">Nº de etapas (parcelas)</label><input class="fi mono" id="f-etapas" type="number" min="1" max="24" placeholder="7" value="7" onchange="buildCrono()"></div>
-            <div class="field"><label class="fl">Data início de contagem</label><input class="fi mono" type="date" id="f-inicio"></div>
-            <div class="field"><label class="fl">Data término previsto</label><input class="fi mono" type="date" id="f-termino"></div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Pré-visualização dos dados extraídos</h2>
+          <div class="toolbar">
+            <button class="ghost" id="loadExampleBtn">Carregar exemplo</button>
+            <button class="ghost" id="clearBtn">Limpar</button>
           </div>
         </div>
-      </div>
+        <div class="card-body">
+          <div class="summary-grid">
+            <div class="mini">
+              <div class="mini-label">Proponente</div>
+              <div class="mini-value" id="summaryName">—</div>
+            </div>
+            <div class="mini">
+              <div class="mini-label">Valor do imóvel</div>
+              <div class="mini-value" id="summaryValue">—</div>
+            </div>
+            <div class="mini">
+              <div class="mini-label">Prazo da obra</div>
+              <div class="mini-value" id="summaryTerm">—</div>
+            </div>
+          </div>
 
-      <div class="crono-wrap mb2">
-        <div class="crono-head">
-          <span>Etapa</span><span style="text-align:right">% Parcela</span><span style="text-align:right">% Acum. Proposto</span><span style="text-align:right">% Acum. Aferido</span><span style="text-align:right">% Acum. Acatado</span>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Campo</th>
+                  <th>Valor extraído</th>
+                  <th>Destino no arquivo base</th>
+                </tr>
+              </thead>
+              <tbody id="mappingTable"></tbody>
+            </table>
+          </div>
+
+          <div class="log" id="log"></div>
         </div>
-        <div id="crono-body"></div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between">
-        <button class="btn btn-ghost" onclick="goStep(3)">← Voltar</button>
-        <button class="btn btn-success" onclick="goPreview()">Revisar e gerar RAE →</button>
       </div>
     </div>
-
-    <!-- STEP 5: PREVIEW -->
-    <div id="sec-5" class="hidden">
-      <div class="info-box">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1zM5 6h6M5 9h4"/></svg>
-        <div class="info-box-text">Confira todos os dados antes de gerar o RAE. Clique em qualquer seção para voltar e editar.</div>
-      </div>
-      <div id="preview-content"></div>
-      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:20px">
-        <button class="btn btn-ghost" onclick="goStep(4)">← Editar</button>
-        <button class="btn btn-success" style="padding:10px 24px;font-size:14px" onclick="gerarRAE()">↓ Gerar e baixar RAE (.xlsx)</button>
-      </div>
-    </div>
-
   </div>
-</div>
 
-<!-- ══════════ CLIENTES ══════════ -->
-<div id="page-clientes" class="page">
-  <div class="topbar">
-    <div><div class="tb-title">Clientes</div></div>
-    <div class="tb-right">
-      <input class="fi" id="search-q" placeholder="Buscar..." style="width:200px;padding:6px 10px;font-size:13px" oninput="renderClientes()">
-      <button class="btn btn-primary btn-sm" onclick="showPage('novo')">+ Novo</button>
-    </div>
-  </div>
-  <div class="content">
-    <div class="tc"><div id="clientes-body"></div></div>
-  </div>
-</div>
+  <script>
+    const state = { baseFile: null, sourceFile: null, extracted: [] };
 
-</main>
-</div>
+    const mappingTemplate = [
+      { campo: 'Proponente', valor: 'Pamela da Silva Garutti', destino: 'Identificação > Nome do proponente' },
+      { campo: 'CPF do proponente', valor: '426.574.718-38', destino: 'Identificação > CPF' },
+      { campo: 'Responsável técnico', valor: 'Pedro de Marchi Neto', destino: 'Responsável técnico > Nome' },
+      { campo: 'CPF do RT', valor: '389.610.738-00', destino: 'Responsável técnico > CPF' },
+      { campo: 'CAU/CREA/CFT', valor: '00A2556537/SP', destino: 'Responsável técnico > Registro profissional' },
+      { campo: 'Endereço do imóvel', valor: 'Projetada 18 Marlene Machado Cherulli, Quadra 24 Lote 29', destino: 'Imóvel > Endereço' },
+      { campo: 'Bairro', valor: 'Eplatz Rio Preto', destino: 'Imóvel > Bairro' },
+      { campo: 'Município/UF', valor: 'São José do Rio Preto/SP', destino: 'Imóvel > Município / UF' },
+      { campo: 'Área construída total', valor: '87,00 m²', destino: 'Áreas > Área construída total' },
+      { campo: 'Área do terreno', valor: '200,00 m²', destino: 'Áreas > Área do terreno' },
+      { campo: 'Valor do terreno', valor: 'R$ 84.000,00', destino: 'Valores > Terreno' },
+      { campo: 'Valor do imóvel', valor: 'R$ 264.000,00', destino: 'Valores > Valor final / proposta' },
+      { campo: 'Custo da obra', valor: 'R$ 180.000,00', destino: 'Valores > Custo total de serviços' },
+      { campo: 'Prazo da execução', valor: '7 meses', destino: 'Cronograma > Prazo da obra' }
+    ];
 
-<!-- MODAL DETALHE -->
-<div class="modal-bg hidden" id="modal">
-  <div class="modal">
-    <div id="modal-content"></div>
-    <div class="modal-foot">
-      <button class="btn btn-danger btn-sm" id="btn-del">Excluir</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Fechar</button>
-      <button class="btn btn-success btn-sm" id="btn-baixar">↓ Baixar RAE</button>
-    </div>
-  </div>
-</div>
+    const baseFile = document.getElementById('baseFile');
+    const sourceFile = document.getElementById('sourceFile');
+    const baseFileName = document.getElementById('baseFileName');
+    const sourceFileName = document.getElementById('sourceFileName');
+    const mappingTable = document.getElementById('mappingTable');
+    const log = document.getElementById('log');
+    const extractBtn = document.getElementById('extractBtn');
+    const fillBtn = document.getElementById('fillBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const loadExampleBtn = document.getElementById('loadExampleBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const baseStatus = document.getElementById('baseStatus');
+    const sourceStatus = document.getElementById('sourceStatus');
+    const processStatus = document.getElementById('processStatus');
+    const globalStatus = document.getElementById('globalStatus');
+    const summaryName = document.getElementById('summaryName');
+    const summaryValue = document.getElementById('summaryValue');
+    const summaryTerm = document.getElementById('summaryTerm');
 
-<div class="toast" id="toast"></div>
+    function addLog(message) {
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML = `<span class="dot"></span><div>${message}</div>`;
+      log.prepend(item);
+    }
 
-<script>
-// ═══════════════════════════════════════════
-// CONSTANTES
-// ═══════════════════════════════════════════
-const SERVICOS=[
-  'Serviços Preliminares e Gerais','Infraestrutura','Supraestrutura',
-  'Paredes e Painéis','Esquadrias','Vidros e Plásticos','Coberturas',
-  'Impermeabilizações','Revestimentos Internos','Forros','Revestimentos Externos',
-  'Pintura','Pisos','Acabamentos','Instalações Elétricas e Telefônicas',
-  'Instalações Hidráulicas','Instalações de Esgoto e Águas Pluviais',
-  'Louças e Metais','Complementos','Outros Serviços'
-];
+    function renderTable(data) {
+      mappingTable.innerHTML = '';
+      data.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row.campo}</td><td><input data-index="${index}" value="${row.valor}" /></td><td>${row.destino}</td>`;
+        mappingTable.appendChild(tr);
+      });
+      mappingTable.querySelectorAll('input').forEach((input) => {
+        input.addEventListener('input', (e) => {
+          const idx = Number(e.target.dataset.index);
+          state.extracted[idx].valor = e.target.value;
+          updateSummary();
+        });
+      });
+    }
 
-const INC_REFS=[
-  [1.13,3.97],[3.07,7.43],[12.17,17.67],[4.8,10.67],[4.16,13.27],
-  [0,2.45],[0,12.94],[0,10.10],[6.81,9.32],[0,2.18],[3.87,5.30],
-  [3.63,6.47],[8.41,11.51],[1.01,1.38],[3.75,4.85],[3.63,4.27],
-  [3.65,4.30],[4.14,4.87],[0.24,2.29],[0,10]
-];
+    function updateSummary() {
+      const byName = Object.fromEntries(state.extracted.map(item => [item.campo, item.valor]));
+      summaryName.textContent = byName['Proponente'] || '—';
+      summaryValue.textContent = byName['Valor do imóvel'] || '—';
+      summaryTerm.textContent = byName['Prazo da execução'] || '—';
+    }
 
-let clientes = JSON.parse(localStorage.getItem('rae_clientes')||'[]');
-let curStep = 1;
+    function refreshStatuses() {
+      baseStatus.textContent = state.baseFile ? 'Carregado' : 'Pendente';
+      baseStatus.className = 'status ' + (state.baseFile ? 'done' : '');
+      sourceStatus.textContent = state.sourceFile ? 'Carregado' : 'Pendente';
+      sourceStatus.className = 'status ' + (state.sourceFile ? 'done' : '');
 
-function save(){ localStorage.setItem('rae_clientes', JSON.stringify(clientes)); }
-function autoSave(){ /* drafts can be added later */ }
+      const readyToExtract = !!state.baseFile && !!state.sourceFile;
+      extractBtn.disabled = !readyToExtract;
+      fillBtn.disabled = state.extracted.length === 0;
+      downloadBtn.disabled = state.extracted.length === 0;
 
-// ═══════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════
-function showPage(p){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+p).classList.add('active');
-  const m={dashboard:0,novo:1,clientes:2};
-  document.querySelectorAll('.nb')[m[p]]?.classList.add('active');
-  if(p==='dashboard') renderDashboard();
-  if(p==='clientes') renderClientes();
-  if(p==='novo'){ buildIncidencias(); buildCrono(); curStep=1; showStep(1); }
-}
+      if (state.extracted.length > 0) {
+        processStatus.textContent = 'Mapeado';
+        processStatus.className = 'status done';
+        globalStatus.textContent = 'Pronto para conferência';
+        globalStatus.className = 'status done';
+      } else if (readyToExtract) {
+        processStatus.textContent = 'Pronto para extrair';
+        processStatus.className = 'status wait';
+        globalStatus.textContent = 'Arquivos carregados';
+        globalStatus.className = 'status wait';
+      } else {
+        processStatus.textContent = 'Pendente';
+        processStatus.className = 'status';
+        globalStatus.textContent = 'Aguardando arquivos';
+        globalStatus.className = 'status wait';
+      }
+    }
 
-function goStep(n){ curStep=n; showStep(n); }
-function showStep(n){
-  for(let i=1;i<=5;i++){
-    document.getElementById('sec-'+i)?.classList.toggle('hidden', i!==n);
-    const sEl=document.getElementById('step-'+i);
-    if(!sEl) continue;
-    sEl.classList.remove('active','done');
-    if(i===n) sEl.classList.add('active');
-    else if(i<n) sEl.classList.add('done');
-  }
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-// ═══════════════════════════════════════════
-// INCIDÊNCIAS
-// ═══════════════════════════════════════════
-function buildIncidencias(){
-  const body = document.getElementById('inc-body');
-  body.innerHTML = SERVICOS.map((s,i)=>`
-    <div class="inc-row">
-      <span class="inc-n">${i+1}</span>
-      <span class="inc-name">${s}</span>
-      <input class="inc-inp" id="inc-${i}" type="number" step="0.01" min="0" max="100" value="0.00"
-        onchange="recalcInc()" oninput="recalcInc()">
-      <input class="inc-inp" id="exec-${i}" type="number" step="1" min="0" max="100" value=""
-        placeholder="—">
-      <div style="padding-right:4px">
-        <div class="inc-bar"><div class="inc-bar-fill" id="bar-${i}" style="width:0%"></div></div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px" id="ref-${i}">ref: ${INC_REFS[i][0]}–${INC_REFS[i][1]}%</div>
-      </div>
-    </div>`).join('');
-}
-
-function recalcInc(){
-  let total=0;
-  SERVICOS.forEach((_,i)=>{
-    const v=parseFloat(document.getElementById('inc-'+i)?.value)||0;
-    total+=v;
-    const pct=Math.min(v/15*100,100);
-    const bar=document.getElementById('bar-'+i);
-    if(bar) bar.style.width=pct+'%';
-  });
-  const el=document.getElementById('inc-total-val');
-  if(el){
-    el.textContent=total.toFixed(2)+'%';
-    el.style.color=Math.abs(total-100)<0.5?'var(--green)':total>100?'var(--red)':'var(--amber)';
-  }
-}
-
-function getIncidencias(){ return SERVICOS.map((_,i)=>parseFloat(document.getElementById('inc-'+i)?.value)||0); }
-function getExecItems(){ return SERVICOS.map((_,i)=>{ const v=document.getElementById('exec-'+i)?.value; return v!==''?parseFloat(v):null; }); }
-
-// ═══════════════════════════════════════════
-// CRONOGRAMA
-// ═══════════════════════════════════════════
-function buildCrono(){
-  const n=parseInt(document.getElementById('f-etapas')?.value)||7;
-  const body=document.getElementById('crono-body');
-  let rows='';
-  // Etapa 0 (pré-executado)
-  rows+=`<div class="crono-row">
-    <span class="crono-lbl" style="color:var(--text3)">Pré-exec.</span>
-    <input class="crono-inp" id="cp-perc-0" type="number" step="0.01" value="0" placeholder="0">
-    <input class="crono-inp" id="cp-acum-0" type="number" step="0.01" value="0" placeholder="0">
-    <input class="crono-inp" id="ca-acum-0" type="number" step="0.01" placeholder="—">
-    <input class="crono-inp" id="cc-acum-0" type="number" step="0.01" placeholder="—">
-  </div>`;
-  for(let i=1;i<=n;i++){
-    rows+=`<div class="crono-row">
-      <span class="crono-lbl">Etapa ${i}</span>
-      <input class="crono-inp" id="cp-perc-${i}" type="number" step="0.01" placeholder="0">
-      <input class="crono-inp" id="cp-acum-${i}" type="number" step="0.01" placeholder="0" onchange="autoCalcAcum(${i})">
-      <input class="crono-inp" id="ca-acum-${i}" type="number" step="0.01" placeholder="—">
-      <input class="crono-inp" id="cc-acum-${i}" type="number" step="0.01" placeholder="—">
-    </div>`;
-  }
-  body.innerHTML=rows;
-}
-
-function autoCalcAcum(i){
-  // auto-fill % parcela = acum[i] - acum[i-1]
-  const cur=parseFloat(document.getElementById('cp-acum-'+i)?.value)||0;
-  const prev=parseFloat(document.getElementById('cp-acum-'+(i-1))?.value)||0;
-  const pEl=document.getElementById('cp-perc-'+i);
-  if(pEl && !pEl.value) pEl.value=(cur-prev).toFixed(2);
-}
-
-function getCrono(){
-  const n=parseInt(document.getElementById('f-etapas')?.value)||7;
-  const rows=[];
-  for(let i=0;i<=n;i++){
-    rows.push({
-      perc: parseFloat(document.getElementById('cp-perc-'+i)?.value)||0,
-      acumPLS: parseFloat(document.getElementById('cp-acum-'+i)?.value)||0,
-      acumAfer: document.getElementById('ca-acum-'+i)?.value||'',
-      acumAcat: document.getElementById('cc-acum-'+i)?.value||'',
+    baseFile.addEventListener('change', (e) => {
+      state.baseFile = e.target.files[0] || null;
+      baseFileName.textContent = state.baseFile ? state.baseFile.name : 'Nenhum arquivo selecionado.';
+      addLog(state.baseFile ? `Arquivo base carregado: <strong>${state.baseFile.name}</strong>.` : 'Arquivo base removido.');
+      refreshStatuses();
     });
-  }
-  return rows;
-}
 
-// ═══════════════════════════════════════════
-// PREVIEW
-// ═══════════════════════════════════════════
-function goPreview(){
-  const dados=collectForm();
-  const content=document.getElementById('preview-content');
-  const fmtR=v=>v?'R$ '+Number(v).toLocaleString('pt-BR'):'—';
-  const crono=getCrono();
-  const incs=getIncidencias();
-  const total=incs.reduce((a,b)=>a+b,0);
-  const sumOk=Math.abs(total-100)<0.5;
+    sourceFile.addEventListener('change', (e) => {
+      state.sourceFile = e.target.files[0] || null;
+      sourceFileName.textContent = state.sourceFile ? state.sourceFile.name : 'Nenhum arquivo selecionado.';
+      addLog(state.sourceFile ? `Documento fonte carregado: <strong>${state.sourceFile.name}</strong>.` : 'Documento fonte removido.');
+      refreshStatuses();
+    });
 
-  content.innerHTML=`
-  <div class="confirm-box">
-    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Proponente e RTE</div>
-    ${cr('Proponente',dados.nome)}${cr('CPF',dados.cpf)}${cr('Telefone',dados.tel)}
-    ${cr('RTE',dados.rte)}${cr('CAU/CREA',dados.cau+' / '+dados.uf_rte)}${cr('CPF RTE',dados.cpf_rte)}
-    ${cr('Finalidade',dados.finalidade)}${cr('Repactuação',dados.repact)}${cr('Data Vistoria',dados.dataVist)}
-  </div>
-  <div class="confirm-box">
-    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Imóvel</div>
-    ${cr('Endereço',dados.end+' — '+dados.comp)}${cr('Bairro / CEP',dados.bairro+' / '+dados.cep)}
-    ${cr('Município / UF',dados.municipio+' / '+dados.uf)}
-    ${cr('Matrícula',dados.matricula)}${cr('Ofício',dados.oficio+' — '+dados.comarca+'/'+dados.uf_comarca)}
-    ${cr('V. Terreno',fmtR(dados.vt))}${cr('V. Imóvel',fmtR(dados.vi))}
-    ${cr('Tipo / Uso',dados.tipo+' / '+dados.uso)}
-  </div>
-  <div class="confirm-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Incidências</div>
-      <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:${sumOk?'var(--green)':'var(--red)'}">Total: ${total.toFixed(2)}%${sumOk?' ✓':' ⚠'}</span>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-      ${incs.map((v,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px"><div style="font-size:9px;color:var(--text3)">${i+1}. ${SERVICOS[i].substring(0,16)}</div><div style="font-size:12px;font-weight:500;font-family:var(--mono);color:var(--blue);margin-top:2px">${v.toFixed(2)}%</div></div>`).join('')}
-    </div>
-  </div>
-  <div class="confirm-box">
-    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Cronograma — ${dados.etapas} etapas / ${dados.prazo} meses</div>
-    <div style="overflow-x:auto">
-    <table style="width:100%;border-collapse:collapse;font-size:12px">
-      <thead><tr>${['Etapa','% Parcela','% Acum. PLS','% Acum. Aferido','% Acum. Acatado'].map(h=>`<th style="text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text3);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">${h}</th>`).join('')}</tr></thead>
-      <tbody>${crono.map((r,i)=>`<tr style="${i%2?'background:var(--surface2)':''}"><td style="padding:5px 10px;color:var(--text2)">${i===0?'Pré-exec.':'Etapa '+i}</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px">${r.perc||0}%</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--blue)">${r.acumPLS||0}%</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--green)">${r.acumAfer||'—'}</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--amber)">${r.acumAcat||'—'}</td></tr>`).join('')}</tbody>
-    </table></div>
-  </div>`;
+    extractBtn.addEventListener('click', () => {
+      state.extracted = JSON.parse(JSON.stringify(mappingTemplate));
+      renderTable(state.extracted);
+      updateSummary();
+      refreshStatuses();
+      addLog('Dados simulados extraídos do PDF e vinculados aos campos do arquivo base.');
+    });
 
-  goStep(5);
-}
+    fillBtn.addEventListener('click', () => {
+      addLog('Estrutura de preenchimento preparada. Aqui o sistema chamaria o backend para montar o .xlsm final.');
+      alert('Estrutura pronta. Na versão completa, este botão enviará os dados ao backend para gerar o arquivo preenchido.');
+    });
 
-function cr(k,v){
-  return `<div class="confirm-row"><span class="confirm-key">${k}</span><span class="confirm-val">${v||'—'}</span></div>`;
-}
+    downloadBtn.addEventListener('click', () => {
+      const payload = {
+        arquivoBase: state.baseFile ? state.baseFile.name : null,
+        documentoOrigem: state.sourceFile ? state.sourceFile.name : null,
+        campos: state.extracted
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dados-extraidos.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      addLog('Arquivo de conferência exportado em JSON.');
+    });
 
-// ═══════════════════════════════════════════
-// COLLECT FORM
-// ═══════════════════════════════════════════
-function collectForm(){
-  const g=id=>document.getElementById(id)?.value||'';
-  return{
-    nome:g('f-nome'),cpf:g('f-cpf'),tel:g('f-tel'),
-    rte:g('f-rte'),cau:g('f-cau'),uf_rte:g('f-uf-rte'),cpf_rte:g('f-cpf-rte'),tel_rte:g('f-tel-rte'),
-    finalidade:g('f-finalidade'),repact:g('f-repact'),dataVist:g('f-data-vist'),
-    end:g('f-end'),comp:g('f-comp'),bairro:g('f-bairro'),cep:g('f-cep'),municipio:g('f-municipio'),uf:g('f-uf')||'SP',
-    matricula:g('f-matricula'),oficio:g('f-oficio'),comarca:g('f-comarca'),uf_comarca:g('f-uf-comarca')||'SP',
-    vt:parseFloat(g('f-vt'))||0,vi:parseFloat(g('f-vi'))||0,
-    tipo:g('f-tipo'),uso:g('f-uso'),
-    lat:g('f-lat'),lng:g('f-lng'),
-    prazo:parseInt(g('f-prazo'))||7,etapas:parseInt(g('f-etapas'))||7,
-    inicio:g('f-inicio'),termino:g('f-termino'),
-    incidencias:getIncidencias(),
-    execItems:getExecItems(),
-    crono:getCrono(),
-  };
-}
+    loadExampleBtn.addEventListener('click', () => {
+      state.extracted = JSON.parse(JSON.stringify(mappingTemplate));
+      renderTable(state.extracted);
+      updateSummary();
+      refreshStatuses();
+      addLog('Exemplo carregado para demonstração do fluxo.');
+    });
 
-function limparForm(){
-  if(!confirm('Limpar todos os campos?')) return;
-  document.querySelectorAll('#page-novo .fi, #page-novo .fs').forEach(el=>{
-    el.tagName==='SELECT'?el.selectedIndex=0:el.value='';
-  });
-  buildIncidencias();
-  buildCrono();
-  goStep(1);
-  toast('Formulário limpo','info');
-}
+    clearBtn.addEventListener('click', () => {
+      state.extracted = [];
+      mappingTable.innerHTML = '';
+      log.innerHTML = '';
+      summaryName.textContent = '—';
+      summaryValue.textContent = '—';
+      summaryTerm.textContent = '—';
+      addLog('Tela reiniciada.');
+      refreshStatuses();
+    });
 
-// ═══════════════════════════════════════════
-// GERAR RAE XLSX
-// ═══════════════════════════════════════════
-function gerarRAE(){
-  const d=collectForm();
-  if(!d.nome){ toast('Preencha o nome do proponente','error'); return; }
-
-  const wb=XLSX.utils.book_new();
-
-  // ─── ABA 1: INÍCIO VISTORIA ───
-  const wsIni=XLSX.utils.aoa_to_sheet([
-    ['CAIXA ECONÔMICA FEDERAL'],
-    ['RAE — Relatório de Acompanhamento de Evolução de Obra'],
-    [],
-    ['PROPONENTE','','','','CNPJ / CPF Prop.','','Telefone Prop.'],
-    [d.nome,'','','',d.cpf,'',d.tel],
-    [],
-    ['Responsável Técnico pela Execução da Obra – RTE','','Nº CAU/CREA','','UF','CPF RTE','Telefone RTE'],
-    [d.rte,'',d.cau,'',d.uf_rte,d.cpf_rte,d.tel_rte],
-    [],
-    ['Identificação do imóvel vistoriado'],
-    ['Endereço','','','','','Complemento'],
-    [d.end,'','','','',d.comp],
-    ['Bairro','','CEP','','Município','','UF'],
-    [d.bairro,'',d.cep,'',d.municipio,'',d.uf],
-    ['','','Coord. Lat. S','',d.lat,'',''],
-    ['','','Coord. Lng. W','',d.lng,'',''],
-    ['Valor do Terreno','Matrícula','','Ofício','','Comarca','UF'],
-    [d.vt,d.matricula,'',d.oficio,'',d.comarca,d.uf_comarca],
-    [],
-    ['Tipo do imóvel','','Uso do imóvel',''],
-    [d.tipo,'',d.uso,''],
-    ['Finalidade da vistoria','','','','','',''],
-    [d.finalidade,'','','','','',''],
-    ['Repactuação de Prazo','','','','','',''],
-    [d.repact,'','','','','',''],
-  ]);
-  wsIni['!cols']=[{wch:26},{wch:14},{wch:14},{wch:12},{wch:22},{wch:18},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,wsIni,'Início Vistoria');
-
-  // ─── ABA 2: RAE ───
-  const incRows=d.incidencias.map((v,i)=>{
-    const exec=d.execItems[i];
-    const na_obra=(exec!=null&&v>0)?(v/100*exec).toFixed(2):'';
-    return [i+1, SERVICOS[i], v, exec!=null?exec:'', na_obra];
-  });
-  const totalInc=d.incidencias.reduce((a,b)=>a+b,0);
-  const totalNaObra=incRows.reduce((a,r)=>a+(parseFloat(r[4])||0),0);
-
-  const cronoRows=d.crono.map((r,i)=>[
-    i===0?'Pré-executado':'Etapa '+i,
-    r.perc||0, r.acumPLS||0, r.acumAfer||'', r.acumAcat||''
-  ]);
-
-  const raeData=[
-    ['CAIXA ECONÔMICA FEDERAL — RAE — Planilha de Acompanhamento de Evolução de Obra'],
-    [],
-    ['Proponente:',d.nome,'','CPF:',d.cpf,'','Telefone:',d.tel],
-    ['RTE:',d.rte,'','CAU/CREA:',d.cau,'UF:',d.uf_rte,'CPF RTE:',d.cpf_rte],
-    ['Endereço:',d.end,'','','Complemento:',d.comp],
-    ['Bairro:',d.bairro,'CEP:',d.cep,'Município:',d.municipio,'UF:',d.uf],
-    ['Matrícula:',d.matricula,'Ofício:',d.oficio,'Comarca:',d.comarca],
-    ['Valor do Terreno R$:',d.vt,'','Valor do Imóvel R$:',d.vi],
-    ['Finalidade:',d.finalidade,'','Repactuação:',d.repact],
-    ['Data da Vistoria:',d.dataVist,'','Prazo (meses):',d.prazo,'','Nº Etapas:',d.etapas],
-    d.inicio?['Início Contagem:',d.inicio,'','Término Previsto:',d.termino]:[''],
-    [],
-    ['HABITAÇÃO','','','',''],
-    ['#','Serviço','Incidência (%)','Execução do Item (%)','Execução na Obra (%)'],
-    ...incRows,
-    [],
-    ['','MENSURADO ACUMULADO ATUAL',totalInc.toFixed(2),'',totalNaObra.toFixed(2)],
-    [],
-    ['CRONOGRAMA FÍSICO-FINANCEIRO'],
-    ['Etapa','% Parcela','% Acum. Proposto (PLS)','% Acum. Aferido','% Acum. Acatado'],
-    ...cronoRows,
-  ];
-  const wsRae=XLSX.utils.aoa_to_sheet(raeData);
-  wsRae['!cols']=[{wch:4},{wch:42},{wch:16},{wch:20},{wch:20}];
-  XLSX.utils.book_append_sheet(wb,wsRae,'RAE');
-
-  // ─── ABA 3: RESUMO EXECUTIVO ───
-  const wsRes=XLSX.utils.aoa_to_sheet([
-    ['RESUMO DO PROCESSO'],[''],
-    ['DADO','VALOR'],
-    ['Nome do Proponente',d.nome],['CPF',d.cpf],['Telefone',d.tel],
-    ['RTE',d.rte],['CAU/CREA',d.cau],['UF',d.uf_rte],['CPF RTE',d.cpf_rte],
-    ['Endereço',d.end+' '+d.comp],['Bairro',d.bairro],['CEP',d.cep],
-    ['Município',d.municipio+'/'+d.uf],['Matrícula',d.matricula],
-    ['Ofício/Cartório',d.oficio],['Comarca',d.comarca+'/'+d.uf_comarca],
-    ['Valor Terreno R$',d.vt],['Valor Imóvel R$',d.vi],
-    ['Tipo',d.tipo],['Uso',d.uso],
-    ['Finalidade',d.finalidade],['Repactuação',d.repact],
-    ['Data Vistoria',d.dataVist],['Prazo (meses)',d.prazo],['Nº Etapas',d.etapas],
-    ['Data Início',d.inicio],['Término Previsto',d.termino],
-    ['Gerado em',new Date().toLocaleString('pt-BR')],
-    [''],['INCIDÊNCIAS'],['#','Serviço','Incidência (%)'],
-    ...d.incidencias.map((v,i)=>[i+1,SERVICOS[i],v]),
-    ['','Total',totalInc.toFixed(2)],
-  ]);
-  wsRes['!cols']=[{wch:26},{wch:40}];
-  XLSX.utils.book_append_sheet(wb,wsRes,'Resumo');
-
-  // Salvar no histórico
-  const cliente={
-    id:Date.now().toString(),data:new Date().toISOString(),raeGerado:true,
-    nome:d.nome,cpf:d.cpf,rte:d.rte,municipio:d.municipio,bairro:d.bairro,cep:d.cep,
-    endereco:d.end,complemento:d.comp,matricula:d.matricula,oficio:d.oficio,
-    comarca:d.comarca,valorTerreno:d.vt,valorImovel:d.vi,
-    finalidade:d.finalidade,incidencias:d.incidencias,prazo:d.prazo,etapas:d.etapas,
-  };
-  clientes.push(cliente);
-  save();
-  updateSB();
-
-  const nome='RAE_'+d.nome.split(' ').slice(0,2).join('_').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'.xlsx';
-  XLSX.writeFile(wb,nome);
-  toast('RAE gerado e salvo no histórico!','success');
-  setTimeout(()=>showPage('dashboard'),1400);
-}
-
-// ═══════════════════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════════════════
-function renderDashboard(){
-  const now=new Date();
-  const total=clientes.length;
-  const raes=clientes.filter(c=>c.raeGerado).length;
-  const mes=clientes.filter(c=>{const d=new Date(c.data);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
-  const muns=new Set(clientes.map(c=>c.municipio).filter(Boolean)).size;
-  document.getElementById('d-total').textContent=total;
-  document.getElementById('d-raes').textContent=raes;
-  document.getElementById('d-mes').textContent=mes;
-  document.getElementById('d-mun').textContent=muns;
-  updateSB();
-  const el=document.getElementById('dash-table');
-  const list=[...clientes].reverse().slice(0,10);
-  el.innerHTML=list.length?buildTable(list):`<div class="empty"><div class="empty-title">Nenhum processo ainda</div><div class="empty-sub">Clique em "+ Novo processo" para começar</div></div>`;
-}
-
-function buildTable(list){
-  return`<table><thead><tr>
-    <th>Cliente</th><th>Município</th><th>Matrícula</th><th>V. Imóvel</th><th>Etapas</th><th>Status</th><th>Data</th><th></th>
-  </tr></thead><tbody>${list.map(c=>`<tr>
-    <td><div class="nc">${c.nome}</div><div class="sc">${c.cpf||''}</div></td>
-    <td>${c.municipio||'—'}</td>
-    <td style="font-family:var(--mono);font-size:12px">${c.matricula||'—'}</td>
-    <td style="font-family:var(--mono);font-size:12px;color:var(--amber)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</td>
-    <td style="font-family:var(--mono);font-size:12px">${c.etapas||'—'}</td>
-    <td><span class="badge ${c.raeGerado?'bg':'bb'}">${c.raeGerado?'RAE gerado':'Pendente'}</span></td>
-    <td style="font-size:11px;color:var(--text3)">${new Date(c.data).toLocaleDateString('pt-BR')}</td>
-    <td><button class="btn btn-ghost btn-sm" onclick="verCliente('${c.id}')">Ver</button></td>
-  </tr>`).join('')}</tbody></table>`;
-}
-
-function renderClientes(){
-  const q=(document.getElementById('search-q')?.value||'').toLowerCase();
-  const f=clientes.filter(c=>c.nome.toLowerCase().includes(q)||(c.municipio||'').toLowerCase().includes(q)||(c.cpf||'').includes(q)||(c.matricula||'').includes(q));
-  const el=document.getElementById('clientes-body');
-  el.innerHTML=f.length?buildTable([...f].reverse()):`<div class="empty"><div class="empty-title">${q?'Nenhum resultado':'Nenhum cliente'}</div><div class="empty-sub">${q?'Tente outro termo':'Adicione um processo para começar'}</div></div>`;
-}
-
-// ═══════════════════════════════════════════
-// MODAL DETALHE
-// ═══════════════════════════════════════════
-function verCliente(id){
-  const c=clientes.find(x=>x.id===id);if(!c)return;
-  document.getElementById('modal-content').innerHTML=`
-    <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:2px">${c.nome}</div>
-    <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:20px">${c.cpf||''}</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
-      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Município</div><div style="font-size:13px;font-weight:500">${c.municipio||'—'}</div><div style="font-size:11px;color:var(--text3)">${c.bairro||''}</div></div>
-      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Matrícula</div><div style="font-size:13px;font-weight:500;font-family:var(--mono)">${c.matricula||'—'}</div><div style="font-size:11px;color:var(--text3)">${c.oficio||''}</div></div>
-      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Valor do imóvel</div><div style="font-size:13px;font-weight:500;color:var(--amber);font-family:var(--mono)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</div><div style="font-size:11px;color:var(--text3)">Terreno: ${c.valorTerreno?'R$ '+Number(c.valorTerreno).toLocaleString('pt-BR'):'—'}</div></div>
-    </div>
-    <div style="font-size:12px;display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin-bottom:16px">
-      <span style="color:var(--text3)">RTE</span><span style="font-weight:500">${c.rte||'—'}</span>
-      <span style="color:var(--text3)">Endereço</span><span>${c.endereco||'—'} ${c.complemento||''}</span>
-      <span style="color:var(--text3)">Finalidade</span><span>${c.finalidade||'—'}</span>
-      <span style="color:var(--text3)">Prazo / Etapas</span><span style="font-family:var(--mono)">${c.prazo||'—'} meses / ${c.etapas||'—'} etapas</span>
-      <span style="color:var(--text3)">Cadastrado</span><span>${new Date(c.data).toLocaleDateString('pt-BR')}</span>
-    </div>
-    ${c.incidencias?`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Incidências</div>
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
-      ${c.incidencias.map((v,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3)">${i+1}. ${SERVICOS[i].substring(0,13)}</div><div style="font-size:12px;font-weight:500;font-family:var(--mono);color:var(--blue);margin-top:2px">${v.toFixed(2)}%</div></div>`).join('')}
-    </div>`:''}`;
-  document.getElementById('btn-baixar').onclick=()=>{closeModal();baixarCliente(id);};
-  document.getElementById('btn-del').onclick=()=>{if(confirm('Excluir este cliente?')){clientes=clientes.filter(x=>x.id!==id);save();closeModal();renderClientes();renderDashboard();toast('Excluído','info');}};
-  document.getElementById('modal').classList.remove('hidden');
-}
-function closeModal(){document.getElementById('modal').classList.add('hidden');}
-
-function baixarCliente(id){
-  const c=clientes.find(x=>x.id===id);if(!c)return;
-  const d={
-    nome:c.nome,cpf:c.cpf,tel:'',rte:c.rte||'',cau:'',uf_rte:'',cpf_rte:'',tel_rte:'',
-    finalidade:c.finalidade||'',repact:'Não',dataVist:'',
-    end:c.endereco||'',comp:c.complemento||'',bairro:c.bairro||'',cep:c.cep||'',municipio:c.municipio||'',uf:'SP',
-    matricula:c.matricula||'',oficio:c.oficio||'',comarca:c.comarca||'',uf_comarca:'SP',
-    vt:c.valorTerreno||0,vi:c.valorImovel||0,tipo:'Casa',uso:'Residencial',lat:'',lng:'',
-    prazo:c.prazo||7,etapas:c.etapas||7,inicio:'',termino:'',
-    incidencias:c.incidencias||Array(20).fill(0),
-    execItems:Array(20).fill(null),
-    crono:[{perc:0,acumPLS:0,acumAfer:'',acumAcat:''}],
-  };
-  const wb=XLSX.utils.book_new();
-  const raeData=[['RAE — '+d.nome],[],
-    ['Proponente:',d.nome,'CPF:',d.cpf],['RTE:',d.rte],
-    ['Endereço:',d.end+' '+d.comp,'Município:',d.municipio],
-    ['Matrícula:',d.matricula,'V. Imóvel R$:',d.vi],
-    ['Finalidade:',d.finalidade],[],
-    ['#','Serviço','Incidência (%)'],
-    ...d.incidencias.map((v,i)=>[i+1,SERVICOS[i],v]),
-    ['','Total',d.incidencias.reduce((a,b)=>a+b,0).toFixed(2)],
-  ];
-  const ws=XLSX.utils.aoa_to_sheet(raeData);
-  ws['!cols']=[{wch:4},{wch:40},{wch:16}];
-  XLSX.utils.book_append_sheet(wb,ws,'RAE');
-  XLSX.writeFile(wb,'RAE_'+d.nome.split(' ').slice(0,2).join('_').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'.xlsx');
-  toast('RAE baixado!','success');
-}
-
-// ═══════════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════════
-function updateSB(){
-  document.getElementById('sb-total').textContent=clientes.length;
-  document.getElementById('sb-raes').textContent=clientes.filter(c=>c.raeGerado).length;
-  const now=new Date();
-  document.getElementById('sb-mes').textContent=clientes.filter(c=>{const d=new Date(c.data);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
-}
-function toast(msg,type='info'){
-  const t=document.getElementById('toast');
-  const ic={success:'✓',error:'✕',info:'·'};
-  t.innerHTML=`<span style="font-weight:600">${ic[type]}</span> ${msg}`;
-  t.className='toast '+type+' show';
-  setTimeout(()=>t.classList.remove('show'),3500);
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  buildIncidencias();
-  buildCrono();
-  renderDashboard();
-  updateSB();
-});
-</script>
+    refreshStatuses();
+  </script>
 </body>
 </html>
