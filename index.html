@@ -3,108 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preenchimento Automático de RAE</title>
+  <title>Leitor de Alvará + Conferência PLS</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --primary: #1d4ed8;
-      --primary-soft: #dbeafe;
-      --success: #166534;
-      --success-soft: #dcfce7;
-      --warning: #b45309;
-      --warning-soft: #fef3c7;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
+    :root{
+      --bg:#f6f8fc; --card:#fff; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
+      --primary:#1d4ed8; --primary-soft:#dbeafe; --ok:#166534; --ok-soft:#dcfce7;
+      --warn:#b45309; --warn-soft:#fef3c7; --bad:#b91c1c; --bad-soft:#fee2e2;
+      --shadow:0 12px 32px rgba(15,23,42,.08); --radius:18px;
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-      color: var(--text);
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,Arial,Helvetica,sans-serif; color:var(--text);
+      background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
     }
-    .container { max-width: 1200px; margin: 0 auto; padding: 28px; }
-    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; margin-bottom: 28px; }
-    .hero h1 { margin: 0 0 10px; font-size: 34px; line-height: 1.1; }
-    .hero p { margin: 0; color: var(--muted); max-width: 700px; font-size: 15px; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.75);
-      border: 1px solid rgba(255,255,255,.8); backdrop-filter: blur(12px); border-radius: 999px;
-      padding: 10px 14px; color: var(--primary); font-weight: 600; box-shadow: var(--shadow); white-space: nowrap;
+    .container{max-width:1180px;margin:0 auto;padding:28px}
+    .hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}
+    h1{margin:0 0 8px;font-size:32px}
+    .hero p{margin:0;color:var(--muted);max-width:780px;line-height:1.5}
+    .pill{
+      background:#fff;border:1px solid #dbeafe;color:var(--primary);padding:10px 14px;border-radius:999px;
+      box-shadow:var(--shadow);font-weight:700;white-space:nowrap
     }
-    .grid { display: grid; grid-template-columns: 380px 1fr; gap: 24px; }
-    .card {
-      background: var(--card); border: 1px solid rgba(15, 23, 42, 0.06); border-radius: var(--radius);
-      box-shadow: var(--shadow); overflow: hidden;
+    .layout{display:grid;grid-template-columns:380px 1fr;gap:24px}
+    .card{
+      background:var(--card); border:1px solid rgba(15,23,42,.06); border-radius:var(--radius);
+      box-shadow:var(--shadow); overflow:hidden;
     }
-    .card-header {
-      padding: 18px 20px; border-bottom: 1px solid var(--line); display: flex;
-      justify-content: space-between; align-items: center; gap: 12px;
+    .card-header{
+      padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:10px;
     }
-    .card-header h2 { margin: 0; font-size: 18px; }
-    .card-body { padding: 20px; }
-    .step-list { display: grid; gap: 16px; }
-    .step { border: 1px solid var(--line); border-radius: 16px; padding: 16px; background: #fff; }
-    .step-top {
-      display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px;
+    .card-body{padding:20px}
+    .status{
+      font-size:12px; font-weight:800; border-radius:999px; padding:7px 10px; background:#f3f4f6; color:#4b5563;
     }
-    .step-title { display: flex; align-items: center; gap: 10px; font-weight: 700; }
-    .badge {
-      display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px;
-      border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-size: 13px; font-weight: 700;
-      flex-shrink: 0;
+    .status.ok{background:var(--ok-soft); color:var(--ok)}
+    .status.warn{background:var(--warn-soft); color:var(--warn)}
+    .status.bad{background:var(--bad-soft); color:var(--bad)}
+    .step{border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px}
+    .step-title{display:flex;align-items:center;gap:10px;font-weight:800;margin-bottom:10px}
+    .badge{
+      width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+      background:var(--primary-soft);color:var(--primary);font-size:13px;font-weight:800
     }
-    .status {
-      font-size: 12px; font-weight: 700; border-radius: 999px; padding: 7px 10px; background: #f3f4f6; color: #4b5563;
+    .muted{font-size:13px;color:var(--muted);line-height:1.5}
+    .upload-box{
+      margin-top:12px; border:1.5px dashed #c7d2fe; background:#f8fbff; border-radius:16px; padding:14px;
     }
-    .status.done { background: var(--success-soft); color: var(--success); }
-    .status.wait { background: var(--warning-soft); color: var(--warning); }
-    .muted { color: var(--muted); font-size: 13px; line-height: 1.5; }
-    .upload-box {
-      border: 1.5px dashed #c7d2fe; background: #f8fbff; border-radius: 16px; padding: 16px; display: grid; gap: 12px;
+    input[type=file], input[type=text]{
+      width:100%; margin-top:10px; border:1px solid #d1d5db; background:#fff; border-radius:12px; padding:12px; font:inherit;
     }
-    input[type="file"] {
-      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px; font: inherit;
+    button{
+      border:none; border-radius:14px; padding:13px 16px; font:inherit; font-weight:800; cursor:pointer; transition:.2s ease;
     }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
-    button {
-      border: none; border-radius: 14px; padding: 13px 16px; font: inherit; font-weight: 700; cursor: pointer; transition: .2s ease;
+    button.primary{background:var(--primary); color:#fff}
+    button.secondary{background:#eef2ff; color:#3730a3}
+    button.ghost{background:#f3f4f6; color:#374151}
+    button:hover{transform:translateY(-1px)}
+    button:disabled{opacity:.55; cursor:not-allowed; transform:none}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+    .mini{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:16px}
+    .mini-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .mini-value{font-size:20px;font-weight:800;line-height:1.25}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}
+    table{width:100%;border-collapse:collapse;min-width:780px}
+    th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#374151}
+    td input{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font:inherit}
+    .log{display:grid;gap:10px;margin-top:18px}
+    .log-item{
+      display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border:1px solid var(--line);
+      border-radius:14px;padding:12px 14px;font-size:13px;color:#374151
     }
-    button.primary { background: var(--primary); color: white; }
-    button.primary:hover { transform: translateY(-1px); }
-    button.secondary { background: #eef2ff; color: #3730a3; }
-    button.ghost { background: #f3f4f6; color: #374151; }
-    button:disabled { opacity: .6; cursor: not-allowed; transform: none !important; }
-    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
-    .mini { background: #f8fafc; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-    .mini-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    .mini-value { font-weight: 800; font-size: 20px; line-height: 1.2; }
-    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 16px; }
-    table { width: 100%; border-collapse: collapse; min-width: 780px; }
-    th, td {
-      padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14px; vertical-align: top;
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0}
+    .note{
+      margin-top:16px;padding:14px 16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;
+      color:#9a3412;font-size:13px;line-height:1.5
     }
-    th { background: #f8fafc; color: #374151; font-size: 12px; letter-spacing: .02em; text-transform: uppercase; }
-    td input { width: 100%; border: 1px solid #d1d5db; border-radius: 10px; padding: 10px 12px; font: inherit; }
-    .log { display: grid; gap: 10px; margin-top: 18px; }
-    .log-item {
-      display: flex; gap: 10px; align-items: flex-start; background: #f8fafc; border: 1px solid var(--line);
-      border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #374151;
-    }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); margin-top: 4px; flex-shrink: 0; }
-    .footer-note {
-      margin-top: 18px; padding: 14px 16px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 14px;
-      color: #9a3412; font-size: 13px; line-height: 1.5;
-    }
-    @media (max-width: 980px) {
-      .grid { grid-template-columns: 1fr; }
-      .summary-grid { grid-template-columns: 1fr; }
-      .hero { flex-direction: column; }
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+      .summary-grid{grid-template-columns:1fr}
+      .hero{flex-direction:column}
     }
   </style>
 </head>
@@ -112,85 +93,77 @@
   <div class="container">
     <div class="hero">
       <div>
-        <h1>Preenchimento automático de RAE</h1>
-        <p>Interface inicial em HTML para receber o arquivo base, ler o PDF de origem, extrair os principais dados e permitir conferência manual antes da geração do arquivo final.</p>
+        <h1>Leitura de Alvará + Conferência com PLS</h1>
+        <p>
+          Suba o <strong>Alvará</strong> e a <strong>PLS</strong>. O sistema tenta localizar a
+          <strong>data de emissão do alvará</strong>, calcula automaticamente a <strong>validade em 2 anos</strong>,
+          compara o <strong>responsável técnico</strong> do alvará com o da PLS e exporta o resultado em <strong>Excel</strong>.
+        </p>
       </div>
-      <div class="pill">Fluxo base • PDF → Mapeamento → Planilha</div>
+      <div class="pill">Alvará → data + validade • Alvará × PLS → Excel</div>
     </div>
 
-    <div class="grid">
+    <div class="layout">
       <div class="card">
         <div class="card-header">
-          <h2>Fluxo do processo</h2>
-          <span class="status wait" id="globalStatus">Aguardando arquivos</span>
+          <strong>Entradas</strong>
+          <span class="status warn" id="globalStatus">Aguardando arquivos</span>
         </div>
         <div class="card-body">
-          <div class="step-list">
-            <div class="step">
-              <div class="step-top">
-                <div class="step-title"><span class="badge">1</span> Arquivo base</div>
-                <span class="status" id="baseStatus">Pendente</span>
-              </div>
-              <div class="upload-box">
-                <div class="muted">Envie o arquivo modelo que será usado para preenchimento.</div>
-                <input type="file" id="baseFile" accept=".xls,.xlsx,.xlsm" />
-                <div class="muted" id="baseFileName">Nenhum arquivo selecionado.</div>
-              </div>
-            </div>
-
-            <div class="step">
-              <div class="step-top">
-                <div class="step-title"><span class="badge">2</span> Documento de origem</div>
-                <span class="status" id="sourceStatus">Pendente</span>
-              </div>
-              <div class="upload-box">
-                <div class="muted">Envie o PDF com os dados que serão extraídos.</div>
-                <input type="file" id="sourceFile" accept="application/pdf" />
-                <div class="muted" id="sourceFileName">Nenhum arquivo selecionado.</div>
-              </div>
-            </div>
-
-            <div class="step">
-              <div class="step-top">
-                <div class="step-title"><span class="badge">3</span> Processamento</div>
-                <span class="status" id="processStatus">Pendente</span>
-              </div>
-              <div class="muted">Nesta versão, o processamento foi estruturado para demonstrar a lógica do sistema. A extração real do PDF e o preenchimento do Excel devem ser conectados a um backend.</div>
-              <div class="actions">
-                <button class="primary" id="extractBtn">Extrair dados</button>
-                <button class="secondary" id="fillBtn" disabled>Preparar preenchimento</button>
-                <button class="ghost" id="downloadBtn" disabled>Baixar resultado</button>
-              </div>
+          <div class="step">
+            <div class="step-title"><span class="badge">1</span> PDF do Alvará</div>
+            <div class="muted">O sistema procura a data de emissão e o nome do responsável técnico.</div>
+            <div class="upload-box">
+              <input type="file" id="alvaraFile" accept="application/pdf" />
+              <div class="muted" id="alvaraName">Nenhum arquivo selecionado.</div>
             </div>
           </div>
 
-          <div class="footer-note">
-            Para transformar isso em produção, o ideal é conectar esta tela a um backend que leia o PDF, aplique as regras de mapeamento e devolva o arquivo .xlsm preenchido.
+          <div class="step">
+            <div class="step-title"><span class="badge">2</span> PDF da PLS</div>
+            <div class="muted">O sistema procura o nome do responsável técnico informado na PLS.</div>
+            <div class="upload-box">
+              <input type="file" id="plsFile" accept="application/pdf" />
+              <div class="muted" id="plsName">Nenhum arquivo selecionado.</div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-title"><span class="badge">3</span> Processamento</div>
+            <div class="muted">Depois da leitura, você pode revisar os campos antes de exportar a planilha.</div>
+            <div class="actions">
+              <button class="primary" id="processBtn">Ler PDFs</button>
+              <button class="secondary" id="loadExampleBtn">Carregar exemplo</button>
+              <button class="ghost" id="downloadExcelBtn" disabled>Baixar Excel</button>
+              <button class="ghost" id="downloadJsonBtn" disabled>Baixar JSON</button>
+              <button class="ghost" id="clearBtn">Limpar</button>
+            </div>
+          </div>
+
+          <div class="note">
+            A leitura depende do texto existente dentro do PDF. Em arquivos escaneados como imagem, será necessário OCR em uma próxima versão.
           </div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h2>Pré-visualização dos dados extraídos</h2>
-          <div class="toolbar">
-            <button class="ghost" id="loadExampleBtn">Carregar exemplo</button>
-            <button class="ghost" id="clearBtn">Limpar</button>
-          </div>
+          <strong>Campos identificados</strong>
+          <span class="status" id="resultStatus">Pendente</span>
         </div>
         <div class="card-body">
           <div class="summary-grid">
             <div class="mini">
-              <div class="mini-label">Proponente</div>
-              <div class="mini-value" id="summaryName">—</div>
+              <div class="mini-label">Data de emissão do Alvará</div>
+              <div class="mini-value" id="summaryEmissao">—</div>
             </div>
             <div class="mini">
-              <div class="mini-label">Valor do imóvel</div>
-              <div class="mini-value" id="summaryValue">—</div>
+              <div class="mini-label">Validade do Alvará</div>
+              <div class="mini-value" id="summaryValidade">—</div>
             </div>
             <div class="mini">
-              <div class="mini-label">Prazo da obra</div>
-              <div class="mini-value" id="summaryTerm">—</div>
+              <div class="mini-label">Conferência do RT</div>
+              <div class="mini-value" id="summaryRT">—</div>
             </div>
           </div>
 
@@ -198,9 +171,9 @@
             <table>
               <thead>
                 <tr>
-                  <th>Campo</th>
-                  <th>Valor extraído</th>
-                  <th>Destino no arquivo base</th>
+                  <th>Célula / Campo</th>
+                  <th>Valor identificado</th>
+                  <th>Origem</th>
                 </tr>
               </thead>
               <tbody id="mappingTable"></tbody>
@@ -213,167 +186,348 @@
     </div>
   </div>
 
-  <script>
-    const state = { baseFile: null, sourceFile: null, extracted: [] };
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
 
-    const mappingTemplate = [
-      { campo: 'Proponente', valor: 'Pamela da Silva Garutti', destino: 'Identificação > Nome do proponente' },
-      { campo: 'CPF do proponente', valor: '426.574.718-38', destino: 'Identificação > CPF' },
-      { campo: 'Responsável técnico', valor: 'Pedro de Marchi Neto', destino: 'Responsável técnico > Nome' },
-      { campo: 'CPF do RT', valor: '389.610.738-00', destino: 'Responsável técnico > CPF' },
-      { campo: 'CAU/CREA/CFT', valor: '00A2556537/SP', destino: 'Responsável técnico > Registro profissional' },
-      { campo: 'Endereço do imóvel', valor: 'Projetada 18 Marlene Machado Cherulli, Quadra 24 Lote 29', destino: 'Imóvel > Endereço' },
-      { campo: 'Bairro', valor: 'Eplatz Rio Preto', destino: 'Imóvel > Bairro' },
-      { campo: 'Município/UF', valor: 'São José do Rio Preto/SP', destino: 'Imóvel > Município / UF' },
-      { campo: 'Área construída total', valor: '87,00 m²', destino: 'Áreas > Área construída total' },
-      { campo: 'Área do terreno', valor: '200,00 m²', destino: 'Áreas > Área do terreno' },
-      { campo: 'Valor do terreno', valor: 'R$ 84.000,00', destino: 'Valores > Terreno' },
-      { campo: 'Valor do imóvel', valor: 'R$ 264.000,00', destino: 'Valores > Valor final / proposta' },
-      { campo: 'Custo da obra', valor: 'R$ 180.000,00', destino: 'Valores > Custo total de serviços' },
-      { campo: 'Prazo da execução', valor: '7 meses', destino: 'Cronograma > Prazo da obra' }
+  const state = {
+    alvaraFile: null,
+    plsFile: null,
+    alvaraText: "",
+    plsText: "",
+    rows: []
+  };
+
+  const alvaraFile = document.getElementById("alvaraFile");
+  const plsFile = document.getElementById("plsFile");
+  const alvaraName = document.getElementById("alvaraName");
+  const plsName = document.getElementById("plsName");
+  const processBtn = document.getElementById("processBtn");
+  const loadExampleBtn = document.getElementById("loadExampleBtn");
+  const downloadExcelBtn = document.getElementById("downloadExcelBtn");
+  const downloadJsonBtn = document.getElementById("downloadJsonBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const mappingTable = document.getElementById("mappingTable");
+  const log = document.getElementById("log");
+  const globalStatus = document.getElementById("globalStatus");
+  const resultStatus = document.getElementById("resultStatus");
+  const summaryEmissao = document.getElementById("summaryEmissao");
+  const summaryValidade = document.getElementById("summaryValidade");
+  const summaryRT = document.getElementById("summaryRT");
+
+  function addLog(message){
+    const item = document.createElement("div");
+    item.className = "log-item";
+    item.innerHTML = `<span class="dot"></span><div>${message}</div>`;
+    log.prepend(item);
+  }
+
+  function normalizeName(str){
+    return (str || "")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+  }
+
+  function parseBRDate(value){
+    const m = value && value.match(/(\d{2})[\/.-](\d{2})[\/.-](\d{4})/);
+    if(!m) return null;
+    const d = Number(m[1]), mo = Number(m[2]) - 1, y = Number(m[3]);
+    const dt = new Date(y, mo, d);
+    if(dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
+    return dt;
+  }
+
+  function formatBRDate(date){
+    if(!date) return "";
+    const d = String(date.getDate()).padStart(2,"0");
+    const m = String(date.getMonth()+1).padStart(2,"0");
+    const y = date.getFullYear();
+    return `${d}/${m}/${y}`;
+  }
+
+  function addYearsBR(date, years){
+    const d = new Date(date.getTime());
+    d.setFullYear(d.getFullYear() + years);
+    return d;
+  }
+
+  async function extractPdfText(file){
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+    let fullText = "";
+    for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
+      const page = await pdf.getPage(pageNum);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(" ");
+      fullText += "\n" + pageText;
+    }
+    return fullText;
+  }
+
+  function findDateEmissao(text){
+    const patterns = [
+      /data\s+de\s+emiss[aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
+      /emiss[aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
+      /expedi[cç][aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
+      /emitido\s+em\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i
     ];
-
-    const baseFile = document.getElementById('baseFile');
-    const sourceFile = document.getElementById('sourceFile');
-    const baseFileName = document.getElementById('baseFileName');
-    const sourceFileName = document.getElementById('sourceFileName');
-    const mappingTable = document.getElementById('mappingTable');
-    const log = document.getElementById('log');
-    const extractBtn = document.getElementById('extractBtn');
-    const fillBtn = document.getElementById('fillBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const loadExampleBtn = document.getElementById('loadExampleBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const baseStatus = document.getElementById('baseStatus');
-    const sourceStatus = document.getElementById('sourceStatus');
-    const processStatus = document.getElementById('processStatus');
-    const globalStatus = document.getElementById('globalStatus');
-    const summaryName = document.getElementById('summaryName');
-    const summaryValue = document.getElementById('summaryValue');
-    const summaryTerm = document.getElementById('summaryTerm');
-
-    function addLog(message) {
-      const item = document.createElement('div');
-      item.className = 'log-item';
-      item.innerHTML = `<span class="dot"></span><div>${message}</div>`;
-      log.prepend(item);
+    for(const p of patterns){
+      const m = text.match(p);
+      if(m) return m[1].replace(/\./g,"/").replace(/-/g,"/");
     }
+    const allDates = [...text.matchAll(/\b(\d{2}[\/.-]\d{2}[\/.-]\d{4})\b/g)].map(m => m[1]);
+    return allDates.length ? allDates[0].replace(/\./g,"/").replace(/-/g,"/") : "";
+  }
 
-    function renderTable(data) {
-      mappingTable.innerHTML = '';
-      data.forEach((row, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${row.campo}</td><td><input data-index="${index}" value="${row.valor}" /></td><td>${row.destino}</td>`;
-        mappingTable.appendChild(tr);
+  function extractNameAfterLabel(text, labels){
+    for(const label of labels){
+      const regex = new RegExp(label + String.raw`\s*[:\-]?\s*([A-ZÀ-Ú][A-ZÀ-Ú\s'.-]{5,120})`, "i");
+      const match = text.match(regex);
+      if(match) return match[1].replace(/\s+/g," ").trim();
+    }
+    return "";
+  }
+
+  function cleanPersonName(value){
+    return (value || "")
+      .replace(/\b(CPF|CREA|CAU|CFT|RRT|ART|TRT)\b.*$/i, "")
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }
+
+  function findRTFromAlvara(text){
+    const labels = [
+      "respons[aá]vel\\s+t[eé]cnico",
+      "rt\\s+da\\s+obra",
+      "respons[aá]vel\\s+pela\\s+execu[cç][aã]o",
+      "engenheiro\\s+respons[aá]vel",
+      "arquiteto\\s+respons[aá]vel",
+      "profissional\\s+respons[aá]vel"
+    ];
+    return cleanPersonName(extractNameAfterLabel(text, labels));
+  }
+
+  function findRTFromPLS(text){
+    const labels = [
+      "respons[aá]vel\\s+t[eé]cnico\\s+pela\\s+execu[cç][aã]o\\s+da\\s+obra",
+      "rt\\s+pela\\s+execu[cç][aã]o\\s+de\\s+obras",
+      "respons[aá]vel\\s+t[eé]cnico",
+      "rte"
+    ];
+    return cleanPersonName(extractNameAfterLabel(text, labels));
+  }
+
+  function compareNames(a,b){
+    const na = normalizeName(a), nb = normalizeName(b);
+    if(!na || !nb) return {status:"Não foi possível confirmar", ok:false};
+    if(na === nb) return {status:"Confere", ok:true};
+    if(na.includes(nb) || nb.includes(na)) return {status:"Confere com pequena variação", ok:true};
+    return {status:"Não confere", ok:false};
+  }
+
+  function setStatuses(hasFiles, hasRows, bad=false){
+    if(bad){
+      globalStatus.textContent = "Falha na leitura";
+      globalStatus.className = "status bad";
+      resultStatus.textContent = "Revisar";
+      resultStatus.className = "status bad";
+      return;
+    }
+    if(hasRows){
+      globalStatus.textContent = "Leitura concluída";
+      globalStatus.className = "status ok";
+      resultStatus.textContent = "Campos identificados";
+      resultStatus.className = "status ok";
+    }else if(hasFiles){
+      globalStatus.textContent = "Pronto para ler";
+      globalStatus.className = "status warn";
+      resultStatus.textContent = "Pendente";
+      resultStatus.className = "status";
+    }else{
+      globalStatus.textContent = "Aguardando arquivos";
+      globalStatus.className = "status warn";
+      resultStatus.textContent = "Pendente";
+      resultStatus.className = "status";
+    }
+  }
+
+  function updateSummary(){
+    const get = label => (state.rows.find(r => r.campo === label) || {}).valor || "—";
+    summaryEmissao.textContent = get("Data emissão Alvará");
+    summaryValidade.textContent = get("Validade do Alvará");
+    summaryRT.textContent = get("Conferência RT Alvará x PLS");
+  }
+
+  function renderRows(){
+    mappingTable.innerHTML = "";
+    state.rows.forEach((row, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.campo}</td>
+        <td><input data-idx="${idx}" value="${row.valor || ""}" /></td>
+        <td>${row.origem}</td>
+      `;
+      mappingTable.appendChild(tr);
+    });
+    mappingTable.querySelectorAll("input").forEach(input => {
+      input.addEventListener("input", e => {
+        const idx = Number(e.target.dataset.idx);
+        state.rows[idx].valor = e.target.value;
+        updateSummary();
       });
-      mappingTable.querySelectorAll('input').forEach((input) => {
-        input.addEventListener('input', (e) => {
-          const idx = Number(e.target.dataset.index);
-          state.extracted[idx].valor = e.target.value;
-          updateSummary();
-        });
-      });
+    });
+    const enabled = state.rows.length > 0;
+    downloadExcelBtn.disabled = !enabled;
+    downloadJsonBtn.disabled = !enabled;
+    updateSummary();
+  }
+
+  function buildRows(alvaraDate, validadeDate, alvaraRT, plsRT, conf){
+    state.rows = [
+      { campo: "Data emissão Alvará", valor: alvaraDate || "", origem: "PDF do Alvará" },
+      { campo: "Validade do Alvará", valor: validadeDate || "", origem: "Calculado automaticamente (+2 anos)" },
+      { campo: "RT no Alvará", valor: alvaraRT || "", origem: "PDF do Alvará" },
+      { campo: "RT na PLS", valor: plsRT || "", origem: "PDF da PLS" },
+      { campo: "Conferência RT Alvará x PLS", valor: conf.status, origem: "Comparação automática" }
+    ];
+    renderRows();
+    setStatuses(Boolean(state.alvaraFile || state.plsFile), true, false);
+  }
+
+  function exportExcel(){
+    const wb = XLSX.utils.book_new();
+
+    const dados = [
+      ["Campo", "Valor identificado", "Origem"],
+      ...state.rows.map(r => [r.campo, r.valor, r.origem])
+    ];
+    const wsDados = XLSX.utils.aoa_to_sheet(dados);
+    wsDados["!cols"] = [{wch: 34}, {wch: 34}, {wch: 34}];
+    XLSX.utils.book_append_sheet(wb, wsDados, "Campos");
+
+    const resumo = [
+      ["Resumo da conferência", ""],
+      ["Data emissão Alvará", getRowValue("Data emissão Alvará")],
+      ["Validade do Alvará", getRowValue("Validade do Alvará")],
+      ["RT no Alvará", getRowValue("RT no Alvará")],
+      ["RT na PLS", getRowValue("RT na PLS")],
+      ["Conferência RT Alvará x PLS", getRowValue("Conferência RT Alvará x PLS")],
+      ["Arquivo do Alvará", state.alvaraFile ? state.alvaraFile.name : ""],
+      ["Arquivo da PLS", state.plsFile ? state.plsFile.name : ""]
+    ];
+    const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
+    wsResumo["!cols"] = [{wch: 30}, {wch: 40}];
+    XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
+
+    const nome = "conferencia_alvara_pls.xlsx";
+    XLSX.writeFile(wb, nome);
+    addLog("Planilha Excel exportada.");
+  }
+
+  function getRowValue(label){
+    const row = state.rows.find(r => r.campo === label);
+    return row ? row.valor : "";
+  }
+
+  alvaraFile.addEventListener("change", e => {
+    state.alvaraFile = e.target.files[0] || null;
+    alvaraName.textContent = state.alvaraFile ? state.alvaraFile.name : "Nenhum arquivo selecionado.";
+    addLog(state.alvaraFile ? `Alvará carregado: <strong>${state.alvaraFile.name}</strong>.` : "Alvará removido.");
+    setStatuses(Boolean(state.alvaraFile || state.plsFile), state.rows.length > 0, false);
+  });
+
+  plsFile.addEventListener("change", e => {
+    state.plsFile = e.target.files[0] || null;
+    plsName.textContent = state.plsFile ? state.plsFile.name : "Nenhum arquivo selecionado.";
+    addLog(state.plsFile ? `PLS carregada: <strong>${state.plsFile.name}</strong>.` : "PLS removida.");
+    setStatuses(Boolean(state.alvaraFile || state.plsFile), state.rows.length > 0, false);
+  });
+
+  processBtn.addEventListener("click", async () => {
+    if(!state.alvaraFile && !state.plsFile){
+      alert("Envie pelo menos um PDF para leitura.");
+      return;
     }
+    try{
+      addLog("Iniciando leitura dos PDFs...");
+      state.alvaraText = state.alvaraFile ? await extractPdfText(state.alvaraFile) : "";
+      state.plsText = state.plsFile ? await extractPdfText(state.plsFile) : "";
 
-    function updateSummary() {
-      const byName = Object.fromEntries(state.extracted.map(item => [item.campo, item.valor]));
-      summaryName.textContent = byName['Proponente'] || '—';
-      summaryValue.textContent = byName['Valor do imóvel'] || '—';
-      summaryTerm.textContent = byName['Prazo da execução'] || '—';
+      const alvaraDateStr = findDateEmissao(state.alvaraText);
+      const alvaraDate = parseBRDate(alvaraDateStr);
+      const validade = alvaraDate ? addYearsBR(alvaraDate, 2) : null;
+
+      const alvaraRT = findRTFromAlvara(state.alvaraText);
+      const plsRT = findRTFromPLS(state.plsText);
+      const conf = compareNames(alvaraRT, plsRT);
+
+      buildRows(
+        alvaraDate ? formatBRDate(alvaraDate) : "",
+        validade ? formatBRDate(validade) : "",
+        alvaraRT,
+        plsRT,
+        conf
+      );
+
+      addLog("Leitura concluída. Revise os campos identificados.");
+      if(!alvaraDate) addLog("Não encontrei com segurança a data de emissão no Alvará. Revise manualmente.");
+      if(!alvaraRT) addLog("Não encontrei com segurança o nome do RT no Alvará. Revise manualmente.");
+      if(!plsRT) addLog("Não encontrei com segurança o nome do RT na PLS. Revise manualmente.");
+    }catch(error){
+      console.error(error);
+      setStatuses(Boolean(state.alvaraFile || state.plsFile), false, true);
+      addLog("Ocorreu um erro ao ler os PDFs. Verifique se os arquivos possuem texto selecionável.");
+      alert("Não foi possível ler os PDFs. Verifique se eles possuem texto selecionável.");
     }
+  });
 
-    function refreshStatuses() {
-      baseStatus.textContent = state.baseFile ? 'Carregado' : 'Pendente';
-      baseStatus.className = 'status ' + (state.baseFile ? 'done' : '');
-      sourceStatus.textContent = state.sourceFile ? 'Carregado' : 'Pendente';
-      sourceStatus.className = 'status ' + (state.sourceFile ? 'done' : '');
+  loadExampleBtn.addEventListener("click", () => {
+    buildRows("21/08/2025","21/08/2027","Pedro de Marchi Neto","Pedro de Marchi Neto",{status:"Confere", ok:true});
+    addLog("Exemplo carregado.");
+  });
 
-      const readyToExtract = !!state.baseFile && !!state.sourceFile;
-      extractBtn.disabled = !readyToExtract;
-      fillBtn.disabled = state.extracted.length === 0;
-      downloadBtn.disabled = state.extracted.length === 0;
+  downloadExcelBtn.addEventListener("click", exportExcel);
 
-      if (state.extracted.length > 0) {
-        processStatus.textContent = 'Mapeado';
-        processStatus.className = 'status done';
-        globalStatus.textContent = 'Pronto para conferência';
-        globalStatus.className = 'status done';
-      } else if (readyToExtract) {
-        processStatus.textContent = 'Pronto para extrair';
-        processStatus.className = 'status wait';
-        globalStatus.textContent = 'Arquivos carregados';
-        globalStatus.className = 'status wait';
-      } else {
-        processStatus.textContent = 'Pendente';
-        processStatus.className = 'status';
-        globalStatus.textContent = 'Aguardando arquivos';
-        globalStatus.className = 'status wait';
-      }
-    }
+  downloadJsonBtn.addEventListener("click", () => {
+    const payload = {
+      alvara: state.alvaraFile ? state.alvaraFile.name : null,
+      pls: state.plsFile ? state.plsFile.name : null,
+      campos: state.rows
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "conferencia_alvara_pls.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    addLog("JSON de conferência baixado.");
+  });
 
-    baseFile.addEventListener('change', (e) => {
-      state.baseFile = e.target.files[0] || null;
-      baseFileName.textContent = state.baseFile ? state.baseFile.name : 'Nenhum arquivo selecionado.';
-      addLog(state.baseFile ? `Arquivo base carregado: <strong>${state.baseFile.name}</strong>.` : 'Arquivo base removido.');
-      refreshStatuses();
-    });
+  clearBtn.addEventListener("click", () => {
+    state.alvaraFile = null;
+    state.plsFile = null;
+    state.alvaraText = "";
+    state.plsText = "";
+    state.rows = [];
+    alvaraFile.value = "";
+    plsFile.value = "";
+    alvaraName.textContent = "Nenhum arquivo selecionado.";
+    plsName.textContent = "Nenhum arquivo selecionado.";
+    mappingTable.innerHTML = "";
+    log.innerHTML = "";
+    summaryEmissao.textContent = "—";
+    summaryValidade.textContent = "—";
+    summaryRT.textContent = "—";
+    downloadExcelBtn.disabled = true;
+    downloadJsonBtn.disabled = true;
+    setStatuses(false, false, false);
+    addLog("Tela reiniciada.");
+  });
 
-    sourceFile.addEventListener('change', (e) => {
-      state.sourceFile = e.target.files[0] || null;
-      sourceFileName.textContent = state.sourceFile ? state.sourceFile.name : 'Nenhum arquivo selecionado.';
-      addLog(state.sourceFile ? `Documento fonte carregado: <strong>${state.sourceFile.name}</strong>.` : 'Documento fonte removido.');
-      refreshStatuses();
-    });
-
-    extractBtn.addEventListener('click', () => {
-      state.extracted = JSON.parse(JSON.stringify(mappingTemplate));
-      renderTable(state.extracted);
-      updateSummary();
-      refreshStatuses();
-      addLog('Dados simulados extraídos do PDF e vinculados aos campos do arquivo base.');
-    });
-
-    fillBtn.addEventListener('click', () => {
-      addLog('Estrutura de preenchimento preparada. Aqui o sistema chamaria o backend para montar o .xlsm final.');
-      alert('Estrutura pronta. Na versão completa, este botão enviará os dados ao backend para gerar o arquivo preenchido.');
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      const payload = {
-        arquivoBase: state.baseFile ? state.baseFile.name : null,
-        documentoOrigem: state.sourceFile ? state.sourceFile.name : null,
-        campos: state.extracted
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dados-extraidos.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      addLog('Arquivo de conferência exportado em JSON.');
-    });
-
-    loadExampleBtn.addEventListener('click', () => {
-      state.extracted = JSON.parse(JSON.stringify(mappingTemplate));
-      renderTable(state.extracted);
-      updateSummary();
-      refreshStatuses();
-      addLog('Exemplo carregado para demonstração do fluxo.');
-    });
-
-    clearBtn.addEventListener('click', () => {
-      state.extracted = [];
-      mappingTable.innerHTML = '';
-      log.innerHTML = '';
-      summaryName.textContent = '—';
-      summaryValue.textContent = '—';
-      summaryTerm.textContent = '—';
-      addLog('Tela reiniciada.');
-      refreshStatuses();
-    });
-
-    refreshStatuses();
-  </script>
+  setStatuses(false, false, false);
+</script>
 </body>
 </html>
