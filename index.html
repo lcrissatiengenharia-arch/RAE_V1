@@ -3,131 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAE System — Acompanhamento de Obra</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>RAE System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e2a;--surface:#1e2230;--surface2:#252a3a;--border:#2e3448;--border2:#3a4060;--accent:#4f7fff;--accent2:#7c9fff;--accent3:#c8d8ff;--gold:#f0c060;--gold2:#ffd980;--green:#3ecf8e;--red:#ff5f6d;--text:#e8eaf0;--text2:#9ba3bc;--text3:#5a6280;--r:12px;--r2:8px;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+:root{
+  --bg:#f5f4f1;--surface:#fff;--surface2:#f9f8f6;--border:#e8e6e1;--border2:#d4d1cb;
+  --text:#1a1917;--text2:#6b6860;--text3:#a09d97;
+  --blue:#1d4ed8;--bl:#eff6ff;--blm:#bfdbfe;
+  --green:#15803d;--gl:#f0fdf4;
+  --amber:#b45309;--al:#fffbeb;
+  --red:#b91c1c;--rl:#fef2f2;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
 .app{display:flex;min-height:100vh;}
-.sidebar{width:260px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
-.main{margin-left:260px;flex:1;min-height:100vh;}
-.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid var(--border);}
-.logo-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.5px;}
-.logo-title span{color:var(--accent);}
-.logo-sub{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
-.sidebar-nav{padding:16px 12px;flex:1;}
-.nav-label{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3);padding:8px 12px 6px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r2);cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2);font-family:'DM Mono',monospace;border:none;background:none;width:100%;text-align:left;margin-bottom:2px;}
-.nav-item:hover{background:var(--surface);color:var(--text);}
-.nav-item.active{background:var(--surface2);color:var(--accent2);border:1px solid var(--border2);}
-.nav-item .icon{font-size:15px;width:20px;text-align:center;}
-.sidebar-bottom{padding:16px;border-top:1px solid var(--border);}
-.stats-mini{background:var(--surface);border-radius:var(--r2);padding:12px;font-size:11px;}
-.stats-mini-row{display:flex;justify-content:space-between;margin-bottom:6px;color:var(--text2);}
-.stats-mini-row:last-child{margin-bottom:0;}
-.stats-mini-val{color:var(--accent2);font-weight:500;}
-.topbar{height:64px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;position:sticky;top:0;z-index:50;}
-.topbar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
-.topbar-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.topbar-right{display:flex;gap:10px;align-items:center;}
-.btn{padding:8px 18px;border-radius:var(--r2);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover{background:var(--accent2);transform:translateY(-1px);}
-.btn-ghost{background:var(--surface);color:var(--text2);border:1px solid var(--border2);}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.logo{padding:20px 20px 14px;border-bottom:1px solid var(--border);}
+.logo-mark{font-size:15px;font-weight:600;letter-spacing:-0.3px;}
+.logo-mark span{color:var(--blue);}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono);}
+.nav{padding:10px 10px;flex:1;}
+.nav-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:10px 10px 4px;}
+.nb{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text2);border:none;background:none;width:100%;text-align:left;transition:all .1s;margin-bottom:1px;font-family:'Inter',sans-serif;}
+.nb:hover{background:var(--surface2);color:var(--text);}
+.nb.active{background:var(--bl);color:var(--blue);font-weight:500;}
+.nb svg{width:14px;height:14px;flex-shrink:0;opacity:.7;}
+.nb.active svg{opacity:1;}
+.sb-stats{padding:14px;border-top:1px solid var(--border);}
+.ms{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;}
+.ms-l{color:var(--text3);}
+.ms-v{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--blue);}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;}
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50;}
+.tb-title{font-size:14px;font-weight:600;}
+.tb-sub{font-size:12px;color:var(--text3);}
+.tb-right{display:flex;gap:8px;}
+.content{padding:24px;}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .1s;font-family:'Inter',sans-serif;white-space:nowrap;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:#1e40af;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
 .btn-ghost:hover{background:var(--surface2);color:var(--text);}
-.btn-gold{background:var(--gold);color:#1a1200;font-weight:700;}
-.btn-gold:hover{background:var(--gold2);transform:translateY(-1px);}
+.btn-success{background:var(--green);color:#fff;}
+.btn-success:hover{background:#166534;}
 .btn-danger{background:var(--red);color:#fff;}
-.btn-sm{padding:5px 12px;font-size:11px;}
-.content{padding:32px;}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);}
-.stat-card.gold::before{background:var(--gold);}
-.stat-card.green::before{background:var(--green);}
-.stat-card.red::before{background:var(--red);}
-.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
-.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;margin-bottom:6px;}
-.stat-desc{font-size:11px;color:var(--text3);}
-.section{margin-bottom:32px;}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-.section-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
-.section-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.btn-amber{background:var(--amber);color:#fff;}
+.btn-amber:hover{background:#92400e;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;}
+.card-sm{padding:14px;}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.stat-l{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.stat-v{font-size:28px;font-weight:300;color:var(--text);font-family:var(--mono);letter-spacing:-1px;line-height:1;}
+.stat-d{font-size:11px;color:var(--text3);margin-top:6px;}
+.stat.blue .stat-v{color:var(--blue);}
+.stat.green .stat-v{color:var(--green);}
+.stat.amber .stat-v{color:var(--amber);}
+
+/* TABLE */
+.tc{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 table{width:100%;border-collapse:collapse;}
-th{background:var(--bg3);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-weight:400;}
-td{padding:13px 16px;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle;}
+th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);}
+td{padding:11px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);}
 tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--bg3);}
-.td-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--text);}
-.td-cpf{font-size:11px;color:var(--text3);margin-top:2px;}
-.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:500;}
-.badge-blue{background:rgba(79,127,255,.15);color:var(--accent2);border:1px solid rgba(79,127,255,.3);}
-.badge-green{background:rgba(62,207,142,.15);color:var(--green);border:1px solid rgba(62,207,142,.3);}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text3);}
-.empty-icon{font-size:48px;margin-bottom:16px;}
-.empty-title{font-family:'Syne',sans-serif;font-size:16px;color:var(--text2);margin-bottom:8px;}
-.empty-desc{font-size:12px;line-height:1.6;}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;}
-.upload-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:32px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;margin-bottom:16px;}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--accent);background:rgba(79,127,255,.04);}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.upload-icon{font-size:36px;margin-bottom:12px;}
-.upload-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.upload-sub{font-size:11px;color:var(--text3);}
-.file-preview{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 16px;margin-bottom:10px;}
-.file-name{font-size:12px;color:var(--text);font-weight:500;flex:1;}
-.file-size{font-size:10px;color:var(--text3);}
-.file-ok{font-size:10px;color:var(--green);}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-group{display:flex;flex-direction:column;gap:6px;}
-.form-group.full{grid-column:1 / -1;}
-.form-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
-.form-input,.form-select{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--text);transition:border .15s;outline:none;}
-.form-input:focus,.form-select:focus{border-color:var(--accent);}
-.form-input::placeholder{color:var(--text3);}
-.form-select option{background:var(--bg3);}
-.inc-table{width:100%;border-collapse:collapse;}
-.inc-table th{background:var(--bg3);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);}
-.inc-table td{padding:8px 12px;font-size:12px;border-bottom:1px solid var(--border);}
-.inc-table tr:last-child td{border-bottom:none;}
-.inc-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;width:100px;}
-.inc-bar-fill{height:100%;background:var(--accent);border-radius:2px;}
-.inc-val-input{background:none;border:none;outline:none;font-family:'DM Mono';font-size:12px;color:var(--accent2);width:55px;text-align:right;}
-.processing-overlay{position:fixed;inset:0;background:rgba(13,15,20,.88);z-index:999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.processing-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:40px 48px;text-align:center;max-width:380px;}
-.spinner{width:48px;height:48px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.processing-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
-.processing-sub{font-size:12px;color:var(--text3);line-height:1.6;}
-.processing-step{font-size:11px;color:var(--accent2);margin-top:14px;}
-.modal-overlay{position:fixed;inset:0;background:rgba(13,15,20,.88);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:32px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;}
-.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
-.api-banner{background:linear-gradient(135deg,rgba(79,127,255,.1),rgba(79,127,255,.05));border:1px solid rgba(79,127,255,.3);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:24px;}
-.api-banner-title{font-size:13px;font-weight:500;margin-bottom:3px;}
-.api-banner-sub{font-size:11px;color:var(--text3);}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r2);padding:14px 20px;font-size:13px;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:10px;max-width:340px;}
-.toast.show{transform:translateY(0);opacity:1;}
+tr:hover td{background:var(--surface2);}
+.nc{font-weight:500;color:var(--text);font-size:13px;}
+.sc{font-size:11px;color:var(--text3);margin-top:1px;font-family:var(--mono);}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;}
+.bb{background:var(--bl);color:var(--blue);}
+.bg{background:var(--gl);color:var(--green);}
+.ba{background:var(--al);color:var(--amber);}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg3{grid-template-columns:1fr 1fr 1fr;}
+.fg4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.full{grid-column:1/-1;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.fi,.fs{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text);font-family:'Inter',sans-serif;outline:none;transition:border .1s;width:100%;}
+.fi:focus,.fs:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--bl);}
+.fi::placeholder{color:var(--text3);}
+.fi.mono{font-family:var(--mono);font-size:12px;}
+.fs option{background:#fff;}
+
+/* INCIDÊNCIAS */
+.inc-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.inc-head{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.inc-row{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--border);}
+.inc-row:last-child{border-bottom:none;}
+.inc-row:hover{background:var(--surface2);}
+.inc-n{font-family:var(--mono);font-size:11px;color:var(--text3);text-align:right;}
+.inc-name{font-size:12px;color:var(--text2);}
+.inc-inp{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:12px;color:var(--text);width:100%;text-align:right;outline:none;}
+.inc-inp:focus{border-color:var(--blue);}
+.inc-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.inc-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .2s;}
+.inc-foot{display:grid;grid-template-columns:28px 1fr 80px 80px 100px;gap:8px;padding:8px 12px;background:var(--surface2);border-top:1px solid var(--border);font-size:12px;font-weight:500;}
+
+/* CRONO */
+.crono-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.crono-head{display:grid;grid-template-columns:80px 1fr 1fr 1fr 1fr;gap:8px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.crono-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr 1fr;gap:8px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--border);}
+.crono-row:last-child{border-bottom:none;}
+.crono-row:hover{background:var(--surface2);}
+.crono-lbl{font-size:12px;font-weight:500;color:var(--text2);}
+.crono-inp{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-family:var(--mono);font-size:12px;color:var(--text);width:100%;text-align:right;outline:none;}
+.crono-inp:focus{border-color:var(--blue);}
+
+/* PROGRESS BAR */
+.prog-wrap{background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin-top:4px;}
+.prog-fill{height:100%;border-radius:4px;transition:width .3s;}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:24px;}
+.step{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:12px;font-weight:500;color:var(--text3);border-bottom:2px solid var(--border);flex:1;cursor:default;}
+.step.active{color:var(--blue);border-bottom-color:var(--blue);}
+.step.done{color:var(--green);border-bottom-color:var(--green);}
+.step-dot{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text3);flex-shrink:0;}
+.step.active .step-dot{background:var(--blue);color:#fff;}
+.step.done .step-dot{background:var(--green);color:#fff;}
+
+/* SECTION */
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-size:13px;font-weight:600;color:var(--text);}
+.sec-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+
+/* INFO BOX */
+.info-box{background:var(--bl);border:1px solid var(--blm);border-radius:8px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:16px;}
+.info-box-text{font-size:12px;color:var(--blue);line-height:1.5;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(26,25,23,.4);z-index:200;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;width:92%;max-width:620px;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.1);}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13px;z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;}
+.toast.show{opacity:1;transform:translateY(0);}
 .toast.success{border-left:3px solid var(--green);}
 .toast.error{border-left:3px solid var(--red);}
-.toast.info{border-left:3px solid var(--accent);}
-::-webkit-scrollbar{width:6px;height:6px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.toast.info{border-left:3px solid var(--blue);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--text3);}
+.empty-title{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.empty-sub{font-size:12px;line-height:1.6;}
+
+/* CONFIRM BOX */
+.confirm-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;}
+.confirm-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
+.confirm-row:last-child{border-bottom:none;}
+.confirm-key{color:var(--text3);font-size:12px;}
+.confirm-val{color:var(--text);font-weight:500;font-family:var(--mono);font-size:12px;}
+
 .hidden{display:none!important;}
-.divider{height:1px;background:var(--border);margin:24px 0;}
-.text-green{color:var(--green);}
-.text-gold{color:var(--gold);}
-.text-accent{color:var(--accent2);}
 .page{display:none;}
 .page.active{display:block;}
-.detail-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}
-.detail-card{background:var(--bg3);border-radius:var(--r2);padding:14px;margin-bottom:8px;}
-.detail-card-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
-.detail-card-val{font-size:13px;color:var(--text);font-weight:500;}
+.mt{margin-top:12px;}
+.mb{margin-bottom:12px;}
+.mb2{margin-bottom:20px;}
+.mono{font-family:var(--mono);}
+.green{color:var(--green);}
+.blue{color:var(--blue);}
+.amber{color:var(--amber);}
+.red{color:var(--red);}
+
+/* PREVIEW SECTION */
+.preview-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.preview-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.preview-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+.preview-body{padding:16px;}
 </style>
 </head>
 <body>
@@ -135,267 +195,652 @@ tr:hover td{background:var(--bg3);}
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-title">RAE<span>.</span>system</div>
-    <div class="logo-sub">Acompanhamento de Obra</div>
+  <div class="logo">
+    <div class="logo-mark">rae<span>.</span>system</div>
+    <div class="logo-sub">caixa · acompanhamento</div>
   </div>
-  <nav class="sidebar-nav">
-    <div class="nav-label">Menu</div>
-    <button class="nav-item active" onclick="showPage('dashboard')"><span class="icon">⊞</span> Dashboard</button>
-    <button class="nav-item" onclick="showPage('novo')"><span class="icon">＋</span> Novo Processo</button>
-    <button class="nav-item" onclick="showPage('clientes')"><span class="icon">◫</span> Clientes</button>
-    <div class="nav-label" style="margin-top:12px">Sistema</div>
-    <button class="nav-item" onclick="showPage('config')"><span class="icon">⚙</span> Configurações</button>
+  <nav class="nav">
+    <div class="nav-lbl">Menu</div>
+    <button class="nb active" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nb" onclick="showPage('novo')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v6M5 8h6"/></svg>
+      Novo Processo
+    </button>
+    <button class="nb" onclick="showPage('clientes')">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 13c0-2 2-3 4-3h6c2 0 4 1 4 3"/><circle cx="8" cy="6" r="3"/></svg>
+      Clientes
+    </button>
   </nav>
-  <div class="sidebar-bottom">
-    <div class="stats-mini">
-      <div class="stats-mini-row"><span>Total clientes</span><span class="stats-mini-val" id="sb-total">0</span></div>
-      <div class="stats-mini-row"><span>Este mês</span><span class="stats-mini-val" id="sb-mes">0</span></div>
-      <div class="stats-mini-row"><span>RAEs gerados</span><span class="stats-mini-val" id="sb-raes">0</span></div>
-    </div>
+  <div class="sb-stats">
+    <div class="ms"><span class="ms-l">Total clientes</span><span class="ms-v" id="sb-total">0</span></div>
+    <div class="ms"><span class="ms-l">Este mês</span><span class="ms-v" id="sb-mes">0</span></div>
+    <div class="ms"><span class="ms-l">RAEs gerados</span><span class="ms-v" id="sb-raes">0</span></div>
   </div>
 </aside>
 
 <main class="main">
 
-<!-- ══ DASHBOARD ══ -->
+<!-- ══════════ DASHBOARD ══════════ -->
 <div id="page-dashboard" class="page active">
   <div class="topbar">
-    <div><div class="topbar-title">Dashboard</div><div class="topbar-sub">Visão geral dos processos</div></div>
-    <div class="topbar-right"><button class="btn btn-primary" onclick="showPage('novo')">＋ Novo Processo</button></div>
+    <div><div class="tb-title">Dashboard</div></div>
+    <div class="tb-right"><button class="btn btn-primary btn-sm" onclick="showPage('novo')">+ Novo processo</button></div>
   </div>
   <div class="content">
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-label">Total Clientes</div><div class="stat-val" id="d-total">0</div><div class="stat-desc">processos cadastrados</div></div>
-      <div class="stat-card gold"><div class="stat-label">RAEs Gerados</div><div class="stat-val text-gold" id="d-raes">0</div><div class="stat-desc">planilhas exportadas</div></div>
-      <div class="stat-card green"><div class="stat-label">Este Mês</div><div class="stat-val text-green" id="d-mes">0</div><div class="stat-desc">novos processos</div></div>
-      <div class="stat-card red"><div class="stat-label">Municípios</div><div class="stat-val" id="d-municipios">0</div><div class="stat-desc">cidades atendidas</div></div>
+    <div class="sg">
+      <div class="stat"><div class="stat-l">Clientes</div><div class="stat-v" id="d-total">0</div><div class="stat-d">processos cadastrados</div></div>
+      <div class="stat blue"><div class="stat-l">RAEs gerados</div><div class="stat-v" id="d-raes">0</div><div class="stat-d">planilhas exportadas</div></div>
+      <div class="stat green"><div class="stat-l">Este mês</div><div class="stat-v" id="d-mes">0</div><div class="stat-d">novos processos</div></div>
+      <div class="stat amber"><div class="stat-l">Municípios</div><div class="stat-v" id="d-mun">0</div><div class="stat-d">cidades atendidas</div></div>
     </div>
-    <div class="section">
-      <div class="section-header">
-        <div><div class="section-title">Processos Recentes</div><div class="section-sub">Últimos cadastrados</div></div>
-        <button class="btn btn-ghost btn-sm" onclick="showPage('clientes')">Ver todos →</button>
-      </div>
-      <div class="table-wrap"><div id="dash-table"></div></div>
+    <div class="sec-row">
+      <div><div class="sec-title">Processos recentes</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('clientes')">Ver todos →</button>
     </div>
+    <div class="tc"><div id="dash-table"></div></div>
   </div>
 </div>
 
-<!-- ══ NOVO PROCESSO ══ -->
+<!-- ══════════ NOVO PROCESSO ══════════ -->
 <div id="page-novo" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Novo Processo</div><div class="topbar-sub">Upload PCI + Laudo → RAE preenchido automaticamente pela IA</div></div>
+    <div>
+      <div class="tb-title">Novo processo</div>
+      <div class="tb-sub">Preencha os dados da PCI e do Laudo para gerar o RAE</div>
+    </div>
+    <div class="tb-right">
+      <button class="btn btn-ghost btn-sm" onclick="limparForm()">↺ Limpar</button>
+      <button class="btn btn-success" onclick="goPreview()">Revisar e gerar RAE →</button>
+    </div>
   </div>
   <div class="content">
 
-    <div class="api-banner" id="api-banner">
-      <div style="font-size:24px">🔑</div>
-      <div style="flex:1">
-        <div class="api-banner-title">API Key da Anthropic não configurada</div>
-        <div class="api-banner-sub">Configure sua chave em Configurações para ativar a extração automática dos PDFs</div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="showPage('config')">Configurar →</button>
+    <!-- STEPS -->
+    <div class="steps" id="steps-bar">
+      <div class="step active" id="step-1"><div class="step-dot">1</div> Identificação</div>
+      <div class="step" id="step-2"><div class="step-dot">2</div> Imóvel</div>
+      <div class="step" id="step-3"><div class="step-dot">3</div> Incidências</div>
+      <div class="step" id="step-4"><div class="step-dot">4</div> Cronograma</div>
+      <div class="step" id="step-5"><div class="step-dot">5</div> Revisar</div>
     </div>
 
-    <!-- Upload -->
-    <div class="panel" id="step-upload">
-      <div class="section-title" style="margin-bottom:20px">① Upload dos Documentos</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
-        <div>
-          <div class="form-label" style="margin-bottom:8px">📋 PCI — Proposta de Construção Individual</div>
-          <div class="upload-zone" id="zone-pci" ondragover="handleDrag(event,'pci')" ondragleave="handleDragLeave('pci')" ondrop="handleDrop(event,'pci')">
-            <input type="file" accept=".pdf" onchange="handleFile(event,'pci')">
-            <div class="upload-icon">📋</div>
-            <div class="upload-title">Arraste a PCI aqui</div>
-            <div class="upload-sub">ou clique para selecionar · PDF</div>
+    <!-- STEP 1: IDENTIFICAÇÃO -->
+    <div id="sec-1">
+      <div class="info-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
+        <div class="info-box-text">Dados da <strong>PCI — Proposta de Construção Individual</strong>. Preencha as informações do proponente e do responsável técnico.</div>
+      </div>
+
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Proponente</span></div>
+        <div class="preview-body">
+          <div class="fg mb">
+            <div class="field full"><label class="fl">Nome completo do proponente</label><input class="fi" id="f-nome" placeholder="Ex: DHIEGO CARLOS PEREIRA" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">CPF do proponente</label><input class="fi mono" id="f-cpf" placeholder="416.823.598-08" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Telefone do proponente</label><input class="fi mono" id="f-tel" placeholder="17 98140-5759" oninput="autoSave()"></div>
           </div>
-          <div id="preview-pci" class="hidden"></div>
         </div>
-        <div>
-          <div class="form-label" style="margin-bottom:8px">📊 Laudo de Análise (LAI)</div>
-          <div class="upload-zone" id="zone-lai" ondragover="handleDrag(event,'lai')" ondragleave="handleDragLeave('lai')" ondrop="handleDrop(event,'lai')">
-            <input type="file" accept=".pdf" onchange="handleFile(event,'lai')">
-            <div class="upload-icon">📊</div>
-            <div class="upload-title">Arraste o Laudo aqui</div>
-            <div class="upload-sub">ou clique para selecionar · PDF</div>
+      </div>
+
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Responsável Técnico pela Execução (RTE)</span></div>
+        <div class="preview-body">
+          <div class="fg">
+            <div class="field full"><label class="fl">Nome do RTE</label><input class="fi" id="f-rte" placeholder="Ex: MATHEUS MENDES PALHARES" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Nº CAU / CREA</label><input class="fi mono" id="f-cau" placeholder="A100491-3" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">UF</label><input class="fi" id="f-uf-rte" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">CPF do RTE</label><input class="fi mono" id="f-cpf-rte" placeholder="404.556.758-56" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Telefone do RTE</label><input class="fi mono" id="f-tel-rte" placeholder="17 99187-2378" oninput="autoSave()"></div>
           </div>
-          <div id="preview-lai" class="hidden"></div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
-        <div class="form-group">
-          <div class="form-label">Finalidade da Vistoria</div>
-          <select class="form-select" id="sel-finalidade">
-            <option value="Vistoria para aferição de obra">Vistoria para aferição de obra</option>
-            <option value="Vistoria para ateste de conclusão de obra com pendência">Vistoria para ateste de conclusão</option>
-            <option value="Vistoria final para verificação de requisitos de sustentabilidade">Vistoria final — Sustentabilidade</option>
-            <option value="Vistoria final Reforma Casa com garantia do imóvel">Vistoria final — Reforma Casa</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <div class="form-label">Repactuação de Prazo?</div>
-          <select class="form-select" id="sel-repact">
-            <option value="Não">Não</option>
-            <option value="Sim">Sim</option>
-          </select>
+
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Vistoria</span></div>
+        <div class="preview-body">
+          <div class="fg">
+            <div class="field"><label class="fl">Finalidade da vistoria</label>
+              <select class="fs" id="f-finalidade" onchange="autoSave()">
+                <option value="Vistoria para aferição de obra">Vistoria para aferição de obra</option>
+                <option value="Vistoria para ateste de conclusão de obra com pendência">Ateste de conclusão</option>
+                <option value="Vistoria final para verificação de requisitos de sustentabilidade">Vistoria final — Sustentabilidade</option>
+                <option value="Vistoria final Reforma Casa com garantia do imóvel">Reforma casa</option>
+              </select>
+            </div>
+            <div class="field"><label class="fl">Repactuação de prazo?</label>
+              <select class="fs" id="f-repact" onchange="autoSave()">
+                <option value="Não">Não</option>
+                <option value="Sim">Sim</option>
+              </select>
+            </div>
+            <div class="field"><label class="fl">Data da vistoria</label><input class="fi mono" type="date" id="f-data-vist" oninput="autoSave()"></div>
+          </div>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="iniciarExtracao()" style="width:100%;justify-content:center;padding:14px;font-size:13px;">
-        ✦ Extrair Dados com IA e Preencher RAE
-      </button>
+      <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" onclick="goStep(2)">Próximo: Imóvel →</button></div>
     </div>
 
-    <!-- Review -->
-    <div id="step-review" class="hidden">
-      <div class="divider"></div>
-      <div class="section-title" style="margin-bottom:20px">② Revisão dos Dados Extraídos</div>
+    <!-- STEP 2: IMÓVEL -->
+    <div id="sec-2" class="hidden">
+      <div class="info-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M2 6l6-5 6 5v8a1 1 0 01-1 1H3a1 1 0 01-1-1V6z"/></svg>
+        <div class="info-box-text">Dados do <strong>imóvel vistoriado</strong> conforme PCI e Laudo de Análise.</div>
+      </div>
 
-      <div class="panel" style="margin-bottom:20px">
-        <div class="form-label" style="margin-bottom:16px">PROPONENTE E RTE</div>
-        <div class="form-grid">
-          <div class="form-group full"><div class="form-label">Nome do Proponente</div><input class="form-input" id="r-nome" placeholder="Nome completo"></div>
-          <div class="form-group"><div class="form-label">CPF</div><input class="form-input" id="r-cpf" placeholder="000.000.000-00"></div>
-          <div class="form-group"><div class="form-label">Telefone</div><input class="form-input" id="r-tel" placeholder="(17) 99999-9999"></div>
-          <div class="form-group full"><div class="form-label">Nome do RTE</div><input class="form-input" id="r-rte" placeholder="Responsável Técnico"></div>
-          <div class="form-group"><div class="form-label">CAU/CREA</div><input class="form-input" id="r-cau" placeholder="A000000-0"></div>
-          <div class="form-group"><div class="form-label">UF RTE</div><input class="form-input" id="r-uf-rte" placeholder="SP"></div>
-          <div class="form-group"><div class="form-label">CPF RTE</div><input class="form-input" id="r-cpf-rte" placeholder="000.000.000-00"></div>
-          <div class="form-group"><div class="form-label">Telefone RTE</div><input class="form-input" id="r-tel-rte" placeholder="(17) 99999-9999"></div>
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Endereço</span></div>
+        <div class="preview-body">
+          <div class="fg">
+            <div class="field full"><label class="fl">Endereço</label><input class="fi" id="f-end" placeholder="RUA MANOEL SOILO" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Complemento (Lote / Quadra)</label><input class="fi" id="f-comp" placeholder="LOTE 36, QUADRA H" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Bairro</label><input class="fi" id="f-bairro" placeholder="RESIDENCIAL URUPÊS III" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">CEP</label><input class="fi mono" id="f-cep" placeholder="15852-366" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Município</label><input class="fi" id="f-municipio" placeholder="URUPÊS" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">UF</label><input class="fi" id="f-uf" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
+          </div>
         </div>
       </div>
 
-      <div class="panel" style="margin-bottom:20px">
-        <div class="form-label" style="margin-bottom:16px">IMÓVEL</div>
-        <div class="form-grid">
-          <div class="form-group full"><div class="form-label">Endereço</div><input class="form-input" id="r-end" placeholder="Rua, número"></div>
-          <div class="form-group"><div class="form-label">Complemento</div><input class="form-input" id="r-comp" placeholder="Lote/Quadra"></div>
-          <div class="form-group"><div class="form-label">Bairro</div><input class="form-input" id="r-bairro" placeholder="Bairro"></div>
-          <div class="form-group"><div class="form-label">CEP</div><input class="form-input" id="r-cep" placeholder="00000-000"></div>
-          <div class="form-group"><div class="form-label">Município</div><input class="form-input" id="r-municipio" placeholder="Cidade"></div>
-          <div class="form-group"><div class="form-label">Matrícula</div><input class="form-input" id="r-matricula" placeholder="000.000"></div>
-          <div class="form-group"><div class="form-label">Ofício/Cartório</div><input class="form-input" id="r-oficio" placeholder="1ª ORI de..."></div>
-          <div class="form-group"><div class="form-label">Valor Terreno (R$)</div><input class="form-input" id="r-vt" type="number" placeholder="0"></div>
-          <div class="form-group"><div class="form-label">Valor Imóvel (R$)</div><input class="form-input" id="r-vi" type="number" placeholder="0"></div>
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Registro / Cartório</span></div>
+        <div class="preview-body">
+          <div class="fg">
+            <div class="field"><label class="fl">Matrícula</label><input class="fi mono" id="f-matricula" placeholder="20.617" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Ofício / Cartório</label><input class="fi" id="f-oficio" placeholder="1ª ORI DE URUPÊS" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Comarca</label><input class="fi" id="f-comarca" placeholder="URUPÊS" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">UF Comarca</label><input class="fi" id="f-uf-comarca" placeholder="SP" maxlength="2" style="width:80px" oninput="autoSave()"></div>
+          </div>
         </div>
       </div>
 
-      <div class="panel" style="margin-bottom:20px">
-        <div class="form-label" style="margin-bottom:12px">INCIDÊNCIAS DOS SERVIÇOS — do Laudo (%)</div>
-        <div class="table-wrap">
-          <table class="inc-table">
-            <thead><tr><th style="width:30px">#</th><th>Serviço</th><th style="text-align:right;width:110px">Incidência</th><th style="width:130px">Peso</th></tr></thead>
-            <tbody id="inc-tbody"></tbody>
-            <tfoot><tr>
-              <td colspan="2" style="font-size:11px;color:var(--text3);padding:12px 12px">Total</td>
-              <td style="text-align:right;padding:12px"><span id="inc-total" style="font-family:'Syne';font-size:13px;font-weight:700;color:var(--green)">0,00%</span></td>
-              <td></td>
-            </tr></tfoot>
-          </table>
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Valores e Características</span></div>
+        <div class="preview-body">
+          <div class="fg fg4">
+            <div class="field"><label class="fl">Valor do terreno (R$)</label><input class="fi mono" id="f-vt" type="number" placeholder="55000" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Valor do imóvel (R$)</label><input class="fi mono" id="f-vi" type="number" placeholder="210000" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Tipo do imóvel</label>
+              <select class="fs" id="f-tipo" onchange="autoSave()">
+                <option>Casa</option><option>Apartamento</option><option>Outro</option>
+              </select>
+            </div>
+            <div class="field"><label class="fl">Uso do imóvel</label>
+              <select class="fs" id="f-uso" onchange="autoSave()">
+                <option>Residencial</option><option>Comercial</option><option>Misto</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg mt">
+            <div class="field"><label class="fl">Coord. Latitude S (graus e min)</label><input class="fi mono" id="f-lat" placeholder="21°12'58.87''" oninput="autoSave()"></div>
+            <div class="field"><label class="fl">Coord. Longitude W (graus e min)</label><input class="fi mono" id="f-lng" placeholder="49°17'21.99''" oninput="autoSave()"></div>
+          </div>
         </div>
       </div>
 
-      <div style="display:flex;gap:12px;justify-content:flex-end">
-        <button class="btn btn-ghost" onclick="resetUpload()">↩ Recomeçar</button>
-        <button class="btn btn-gold" onclick="gerarRAE()">⬇ Gerar e Baixar RAE (.xlsx)</button>
+      <div style="display:flex;justify-content:space-between">
+        <button class="btn btn-ghost" onclick="goStep(1)">← Voltar</button>
+        <button class="btn btn-primary" onclick="goStep(3)">Próximo: Incidências →</button>
       </div>
     </div>
+
+    <!-- STEP 3: INCIDÊNCIAS -->
+    <div id="sec-3" class="hidden">
+      <div class="info-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M2 12h12M2 8h9M2 4h6"/></svg>
+        <div class="info-box-text">Preencha as <strong>incidências dos 20 serviços</strong> conforme o Orçamento Proposto do Laudo (coluna Peso %). A soma deve ser <strong>100%</strong>.</div>
+      </div>
+
+      <div class="inc-wrap mb2">
+        <div class="inc-head">
+          <span>#</span><span>Serviço</span><span style="text-align:right">Incidência %</span><span style="text-align:right">Exec. Item %</span><span>Distribuição</span>
+        </div>
+        <div id="inc-body"></div>
+        <div class="inc-foot">
+          <span></span>
+          <span style="color:var(--text3)">Total das incidências</span>
+          <span style="text-align:right;font-family:var(--mono)" id="inc-total-val">0,00%</span>
+          <span></span><span></span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between">
+        <button class="btn btn-ghost" onclick="goStep(2)">← Voltar</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Próximo: Cronograma →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: CRONOGRAMA -->
+    <div id="sec-4" class="hidden">
+      <div class="info-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><rect x="1" y="2" width="14" height="13" rx="1"/><path d="M1 6h14M5 1v2M11 1v2"/></svg>
+        <div class="info-box-text">Informe o <strong>cronograma físico-financeiro</strong> do Laudo: % Acumulado Proposto por etapa. O campo de aferido/acatado será preenchido no momento da vistoria.</div>
+      </div>
+
+      <div class="preview-section mb2">
+        <div class="preview-header"><span class="preview-title">Configuração do Cronograma</span></div>
+        <div class="preview-body">
+          <div class="fg">
+            <div class="field"><label class="fl">Prazo de execução (meses)</label><input class="fi mono" id="f-prazo" type="number" min="1" max="48" placeholder="7" value="7" onchange="buildCrono()"></div>
+            <div class="field"><label class="fl">Nº de etapas (parcelas)</label><input class="fi mono" id="f-etapas" type="number" min="1" max="24" placeholder="7" value="7" onchange="buildCrono()"></div>
+            <div class="field"><label class="fl">Data início de contagem</label><input class="fi mono" type="date" id="f-inicio"></div>
+            <div class="field"><label class="fl">Data término previsto</label><input class="fi mono" type="date" id="f-termino"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="crono-wrap mb2">
+        <div class="crono-head">
+          <span>Etapa</span><span style="text-align:right">% Parcela</span><span style="text-align:right">% Acum. Proposto</span><span style="text-align:right">% Acum. Aferido</span><span style="text-align:right">% Acum. Acatado</span>
+        </div>
+        <div id="crono-body"></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between">
+        <button class="btn btn-ghost" onclick="goStep(3)">← Voltar</button>
+        <button class="btn btn-success" onclick="goPreview()">Revisar e gerar RAE →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: PREVIEW -->
+    <div id="sec-5" class="hidden">
+      <div class="info-box">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;color:var(--blue);margin-top:1px"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1zM5 6h6M5 9h4"/></svg>
+        <div class="info-box-text">Confira todos os dados antes de gerar o RAE. Clique em qualquer seção para voltar e editar.</div>
+      </div>
+      <div id="preview-content"></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:20px">
+        <button class="btn btn-ghost" onclick="goStep(4)">← Editar</button>
+        <button class="btn btn-success" style="padding:10px 24px;font-size:14px" onclick="gerarRAE()">↓ Gerar e baixar RAE (.xlsx)</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- ══ CLIENTES ══ -->
+<!-- ══════════ CLIENTES ══════════ -->
 <div id="page-clientes" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Clientes</div><div class="topbar-sub">Histórico completo de processos</div></div>
-    <div class="topbar-right">
-      <input class="form-input" id="search-input" placeholder="🔍 Buscar..." style="width:220px" oninput="renderClientes()">
-      <button class="btn btn-primary" onclick="showPage('novo')">＋ Novo</button>
+    <div><div class="tb-title">Clientes</div></div>
+    <div class="tb-right">
+      <input class="fi" id="search-q" placeholder="Buscar..." style="width:200px;padding:6px 10px;font-size:13px" oninput="renderClientes()">
+      <button class="btn btn-primary btn-sm" onclick="showPage('novo')">+ Novo</button>
     </div>
   </div>
   <div class="content">
-    <div class="table-wrap"><div id="clientes-body"></div></div>
-  </div>
-</div>
-
-<!-- ══ CONFIG ══ -->
-<div id="page-config" class="page">
-  <div class="topbar">
-    <div><div class="topbar-title">Configurações</div><div class="topbar-sub">API e preferências</div></div>
-  </div>
-  <div class="content">
-    <div class="panel" style="max-width:560px">
-      <div class="section-title" style="margin-bottom:6px">Chave da API Anthropic</div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:20px;line-height:1.6">
-        Necessária para extração automática dos PDFs pela IA.<br>
-        Obtenha em <span style="color:var(--accent2)">console.anthropic.com</span>
-      </div>
-      <div class="form-group" style="margin-bottom:16px">
-        <div class="form-label">API Key</div>
-        <input class="form-input" id="cfg-apikey" type="password" placeholder="sk-ant-api03-...">
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:24px">
-        <button class="btn btn-primary" onclick="salvarConfig()">Salvar</button>
-        <button class="btn btn-ghost" onclick="testarAPI()">Testar Conexão</button>
-      </div>
-      <div class="divider"></div>
-      <div class="section-title" style="margin-bottom:16px;font-size:13px">Dados</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost btn-sm" onclick="exportarDados()">📤 Exportar JSON</button>
-        <button class="btn btn-danger btn-sm" onclick="limparDados()">🗑 Limpar Dados</button>
-      </div>
-    </div>
+    <div class="tc"><div id="clientes-body"></div></div>
   </div>
 </div>
 
 </main>
 </div>
 
-<!-- PROCESSING -->
-<div class="processing-overlay hidden" id="processing">
-  <div class="processing-box">
-    <div class="spinner"></div>
-    <div class="processing-title">Analisando com IA</div>
-    <div class="processing-sub">Enviando PDFs para o Claude e extraindo todos os dados automaticamente...</div>
-    <div class="processing-step" id="proc-step">Preparando...</div>
-  </div>
-</div>
-
-<!-- DETAIL MODAL -->
-<div class="modal-overlay hidden" id="modal-detail">
+<!-- MODAL DETALHE -->
+<div class="modal-bg hidden" id="modal">
   <div class="modal">
-    <div id="modal-detail-content"></div>
-    <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="btn-modal-del">🗑 Excluir</button>
-      <button class="btn btn-ghost" onclick="closeModal()">Fechar</button>
-      <button class="btn btn-gold" id="btn-modal-baixar">⬇ Baixar RAE</button>
+    <div id="modal-content"></div>
+    <div class="modal-foot">
+      <button class="btn btn-danger btn-sm" id="btn-del">Excluir</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Fechar</button>
+      <button class="btn btn-success btn-sm" id="btn-baixar">↓ Baixar RAE</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const SERVICOS=['Serviços Preliminares e Gerais','Infraestrutura','Supraestrutura','Paredes e Painéis','Esquadrias','Vidros e Plásticos','Coberturas','Impermeabilizações','Revestimentos Internos','Forros','Revestimentos Externos','Pintura','Pisos','Acabamentos','Instalações Elétricas e Telefônicas','Instalações Hidráulicas','Instalações de Esgoto e Águas Pluviais','Louças e Metais','Complementos','Outros Serviços'];
+// ═══════════════════════════════════════════
+// CONSTANTES
+// ═══════════════════════════════════════════
+const SERVICOS=[
+  'Serviços Preliminares e Gerais','Infraestrutura','Supraestrutura',
+  'Paredes e Painéis','Esquadrias','Vidros e Plásticos','Coberturas',
+  'Impermeabilizações','Revestimentos Internos','Forros','Revestimentos Externos',
+  'Pintura','Pisos','Acabamentos','Instalações Elétricas e Telefônicas',
+  'Instalações Hidráulicas','Instalações de Esgoto e Águas Pluviais',
+  'Louças e Metais','Complementos','Outros Serviços'
+];
 
-let clientes=JSON.parse(localStorage.getItem('rae_clientes')||'[]');
-let uploadedFiles={pci:null,lai:null};
+const INC_REFS=[
+  [1.13,3.97],[3.07,7.43],[12.17,17.67],[4.8,10.67],[4.16,13.27],
+  [0,2.45],[0,12.94],[0,10.10],[6.81,9.32],[0,2.18],[3.87,5.30],
+  [3.63,6.47],[8.41,11.51],[1.01,1.38],[3.75,4.85],[3.63,4.27],
+  [3.65,4.30],[4.14,4.87],[0.24,2.29],[0,10]
+];
 
-function save(){localStorage.setItem('rae_clientes',JSON.stringify(clientes));}
+let clientes = JSON.parse(localStorage.getItem('rae_clientes')||'[]');
+let curStep = 1;
 
-// ── NAVIGATION ──
-function showPage(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  const m={dashboard:0,novo:1,clientes:2,config:3};
-  document.querySelectorAll('.nav-item')[m[page]]?.classList.add('active');
-  if(page==='dashboard')renderDashboard();
-  if(page==='clientes')renderClientes();
-  if(page==='config')loadConfig();
-  if(page==='novo')checkApiBanner();
+function save(){ localStorage.setItem('rae_clientes', JSON.stringify(clientes)); }
+function autoSave(){ /* drafts can be added later */ }
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const m={dashboard:0,novo:1,clientes:2};
+  document.querySelectorAll('.nb')[m[p]]?.classList.add('active');
+  if(p==='dashboard') renderDashboard();
+  if(p==='clientes') renderClientes();
+  if(p==='novo'){ buildIncidencias(); buildCrono(); curStep=1; showStep(1); }
 }
 
-// ── DASHBOARD ──
+function goStep(n){ curStep=n; showStep(n); }
+function showStep(n){
+  for(let i=1;i<=5;i++){
+    document.getElementById('sec-'+i)?.classList.toggle('hidden', i!==n);
+    const sEl=document.getElementById('step-'+i);
+    if(!sEl) continue;
+    sEl.classList.remove('active','done');
+    if(i===n) sEl.classList.add('active');
+    else if(i<n) sEl.classList.add('done');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════
+// INCIDÊNCIAS
+// ═══════════════════════════════════════════
+function buildIncidencias(){
+  const body = document.getElementById('inc-body');
+  body.innerHTML = SERVICOS.map((s,i)=>`
+    <div class="inc-row">
+      <span class="inc-n">${i+1}</span>
+      <span class="inc-name">${s}</span>
+      <input class="inc-inp" id="inc-${i}" type="number" step="0.01" min="0" max="100" value="0.00"
+        onchange="recalcInc()" oninput="recalcInc()">
+      <input class="inc-inp" id="exec-${i}" type="number" step="1" min="0" max="100" value=""
+        placeholder="—">
+      <div style="padding-right:4px">
+        <div class="inc-bar"><div class="inc-bar-fill" id="bar-${i}" style="width:0%"></div></div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px" id="ref-${i}">ref: ${INC_REFS[i][0]}–${INC_REFS[i][1]}%</div>
+      </div>
+    </div>`).join('');
+}
+
+function recalcInc(){
+  let total=0;
+  SERVICOS.forEach((_,i)=>{
+    const v=parseFloat(document.getElementById('inc-'+i)?.value)||0;
+    total+=v;
+    const pct=Math.min(v/15*100,100);
+    const bar=document.getElementById('bar-'+i);
+    if(bar) bar.style.width=pct+'%';
+  });
+  const el=document.getElementById('inc-total-val');
+  if(el){
+    el.textContent=total.toFixed(2)+'%';
+    el.style.color=Math.abs(total-100)<0.5?'var(--green)':total>100?'var(--red)':'var(--amber)';
+  }
+}
+
+function getIncidencias(){ return SERVICOS.map((_,i)=>parseFloat(document.getElementById('inc-'+i)?.value)||0); }
+function getExecItems(){ return SERVICOS.map((_,i)=>{ const v=document.getElementById('exec-'+i)?.value; return v!==''?parseFloat(v):null; }); }
+
+// ═══════════════════════════════════════════
+// CRONOGRAMA
+// ═══════════════════════════════════════════
+function buildCrono(){
+  const n=parseInt(document.getElementById('f-etapas')?.value)||7;
+  const body=document.getElementById('crono-body');
+  let rows='';
+  // Etapa 0 (pré-executado)
+  rows+=`<div class="crono-row">
+    <span class="crono-lbl" style="color:var(--text3)">Pré-exec.</span>
+    <input class="crono-inp" id="cp-perc-0" type="number" step="0.01" value="0" placeholder="0">
+    <input class="crono-inp" id="cp-acum-0" type="number" step="0.01" value="0" placeholder="0">
+    <input class="crono-inp" id="ca-acum-0" type="number" step="0.01" placeholder="—">
+    <input class="crono-inp" id="cc-acum-0" type="number" step="0.01" placeholder="—">
+  </div>`;
+  for(let i=1;i<=n;i++){
+    rows+=`<div class="crono-row">
+      <span class="crono-lbl">Etapa ${i}</span>
+      <input class="crono-inp" id="cp-perc-${i}" type="number" step="0.01" placeholder="0">
+      <input class="crono-inp" id="cp-acum-${i}" type="number" step="0.01" placeholder="0" onchange="autoCalcAcum(${i})">
+      <input class="crono-inp" id="ca-acum-${i}" type="number" step="0.01" placeholder="—">
+      <input class="crono-inp" id="cc-acum-${i}" type="number" step="0.01" placeholder="—">
+    </div>`;
+  }
+  body.innerHTML=rows;
+}
+
+function autoCalcAcum(i){
+  // auto-fill % parcela = acum[i] - acum[i-1]
+  const cur=parseFloat(document.getElementById('cp-acum-'+i)?.value)||0;
+  const prev=parseFloat(document.getElementById('cp-acum-'+(i-1))?.value)||0;
+  const pEl=document.getElementById('cp-perc-'+i);
+  if(pEl && !pEl.value) pEl.value=(cur-prev).toFixed(2);
+}
+
+function getCrono(){
+  const n=parseInt(document.getElementById('f-etapas')?.value)||7;
+  const rows=[];
+  for(let i=0;i<=n;i++){
+    rows.push({
+      perc: parseFloat(document.getElementById('cp-perc-'+i)?.value)||0,
+      acumPLS: parseFloat(document.getElementById('cp-acum-'+i)?.value)||0,
+      acumAfer: document.getElementById('ca-acum-'+i)?.value||'',
+      acumAcat: document.getElementById('cc-acum-'+i)?.value||'',
+    });
+  }
+  return rows;
+}
+
+// ═══════════════════════════════════════════
+// PREVIEW
+// ═══════════════════════════════════════════
+function goPreview(){
+  const dados=collectForm();
+  const content=document.getElementById('preview-content');
+  const fmtR=v=>v?'R$ '+Number(v).toLocaleString('pt-BR'):'—';
+  const crono=getCrono();
+  const incs=getIncidencias();
+  const total=incs.reduce((a,b)=>a+b,0);
+  const sumOk=Math.abs(total-100)<0.5;
+
+  content.innerHTML=`
+  <div class="confirm-box">
+    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Proponente e RTE</div>
+    ${cr('Proponente',dados.nome)}${cr('CPF',dados.cpf)}${cr('Telefone',dados.tel)}
+    ${cr('RTE',dados.rte)}${cr('CAU/CREA',dados.cau+' / '+dados.uf_rte)}${cr('CPF RTE',dados.cpf_rte)}
+    ${cr('Finalidade',dados.finalidade)}${cr('Repactuação',dados.repact)}${cr('Data Vistoria',dados.dataVist)}
+  </div>
+  <div class="confirm-box">
+    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Imóvel</div>
+    ${cr('Endereço',dados.end+' — '+dados.comp)}${cr('Bairro / CEP',dados.bairro+' / '+dados.cep)}
+    ${cr('Município / UF',dados.municipio+' / '+dados.uf)}
+    ${cr('Matrícula',dados.matricula)}${cr('Ofício',dados.oficio+' — '+dados.comarca+'/'+dados.uf_comarca)}
+    ${cr('V. Terreno',fmtR(dados.vt))}${cr('V. Imóvel',fmtR(dados.vi))}
+    ${cr('Tipo / Uso',dados.tipo+' / '+dados.uso)}
+  </div>
+  <div class="confirm-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Incidências</div>
+      <span style="font-family:var(--mono);font-size:13px;font-weight:600;color:${sumOk?'var(--green)':'var(--red)'}">Total: ${total.toFixed(2)}%${sumOk?' ✓':' ⚠'}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+      ${incs.map((v,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px"><div style="font-size:9px;color:var(--text3)">${i+1}. ${SERVICOS[i].substring(0,16)}</div><div style="font-size:12px;font-weight:500;font-family:var(--mono);color:var(--blue);margin-top:2px">${v.toFixed(2)}%</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="confirm-box">
+    <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Cronograma — ${dados.etapas} etapas / ${dados.prazo} meses</div>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr>${['Etapa','% Parcela','% Acum. PLS','% Acum. Aferido','% Acum. Acatado'].map(h=>`<th style="text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text3);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">${h}</th>`).join('')}</tr></thead>
+      <tbody>${crono.map((r,i)=>`<tr style="${i%2?'background:var(--surface2)':''}"><td style="padding:5px 10px;color:var(--text2)">${i===0?'Pré-exec.':'Etapa '+i}</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px">${r.perc||0}%</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--blue)">${r.acumPLS||0}%</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--green)">${r.acumAfer||'—'}</td><td style="text-align:right;font-family:var(--mono);padding:5px 10px;color:var(--amber)">${r.acumAcat||'—'}</td></tr>`).join('')}</tbody>
+    </table></div>
+  </div>`;
+
+  goStep(5);
+}
+
+function cr(k,v){
+  return `<div class="confirm-row"><span class="confirm-key">${k}</span><span class="confirm-val">${v||'—'}</span></div>`;
+}
+
+// ═══════════════════════════════════════════
+// COLLECT FORM
+// ═══════════════════════════════════════════
+function collectForm(){
+  const g=id=>document.getElementById(id)?.value||'';
+  return{
+    nome:g('f-nome'),cpf:g('f-cpf'),tel:g('f-tel'),
+    rte:g('f-rte'),cau:g('f-cau'),uf_rte:g('f-uf-rte'),cpf_rte:g('f-cpf-rte'),tel_rte:g('f-tel-rte'),
+    finalidade:g('f-finalidade'),repact:g('f-repact'),dataVist:g('f-data-vist'),
+    end:g('f-end'),comp:g('f-comp'),bairro:g('f-bairro'),cep:g('f-cep'),municipio:g('f-municipio'),uf:g('f-uf')||'SP',
+    matricula:g('f-matricula'),oficio:g('f-oficio'),comarca:g('f-comarca'),uf_comarca:g('f-uf-comarca')||'SP',
+    vt:parseFloat(g('f-vt'))||0,vi:parseFloat(g('f-vi'))||0,
+    tipo:g('f-tipo'),uso:g('f-uso'),
+    lat:g('f-lat'),lng:g('f-lng'),
+    prazo:parseInt(g('f-prazo'))||7,etapas:parseInt(g('f-etapas'))||7,
+    inicio:g('f-inicio'),termino:g('f-termino'),
+    incidencias:getIncidencias(),
+    execItems:getExecItems(),
+    crono:getCrono(),
+  };
+}
+
+function limparForm(){
+  if(!confirm('Limpar todos os campos?')) return;
+  document.querySelectorAll('#page-novo .fi, #page-novo .fs').forEach(el=>{
+    el.tagName==='SELECT'?el.selectedIndex=0:el.value='';
+  });
+  buildIncidencias();
+  buildCrono();
+  goStep(1);
+  toast('Formulário limpo','info');
+}
+
+// ═══════════════════════════════════════════
+// GERAR RAE XLSX
+// ═══════════════════════════════════════════
+function gerarRAE(){
+  const d=collectForm();
+  if(!d.nome){ toast('Preencha o nome do proponente','error'); return; }
+
+  const wb=XLSX.utils.book_new();
+
+  // ─── ABA 1: INÍCIO VISTORIA ───
+  const wsIni=XLSX.utils.aoa_to_sheet([
+    ['CAIXA ECONÔMICA FEDERAL'],
+    ['RAE — Relatório de Acompanhamento de Evolução de Obra'],
+    [],
+    ['PROPONENTE','','','','CNPJ / CPF Prop.','','Telefone Prop.'],
+    [d.nome,'','','',d.cpf,'',d.tel],
+    [],
+    ['Responsável Técnico pela Execução da Obra – RTE','','Nº CAU/CREA','','UF','CPF RTE','Telefone RTE'],
+    [d.rte,'',d.cau,'',d.uf_rte,d.cpf_rte,d.tel_rte],
+    [],
+    ['Identificação do imóvel vistoriado'],
+    ['Endereço','','','','','Complemento'],
+    [d.end,'','','','',d.comp],
+    ['Bairro','','CEP','','Município','','UF'],
+    [d.bairro,'',d.cep,'',d.municipio,'',d.uf],
+    ['','','Coord. Lat. S','',d.lat,'',''],
+    ['','','Coord. Lng. W','',d.lng,'',''],
+    ['Valor do Terreno','Matrícula','','Ofício','','Comarca','UF'],
+    [d.vt,d.matricula,'',d.oficio,'',d.comarca,d.uf_comarca],
+    [],
+    ['Tipo do imóvel','','Uso do imóvel',''],
+    [d.tipo,'',d.uso,''],
+    ['Finalidade da vistoria','','','','','',''],
+    [d.finalidade,'','','','','',''],
+    ['Repactuação de Prazo','','','','','',''],
+    [d.repact,'','','','','',''],
+  ]);
+  wsIni['!cols']=[{wch:26},{wch:14},{wch:14},{wch:12},{wch:22},{wch:18},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,wsIni,'Início Vistoria');
+
+  // ─── ABA 2: RAE ───
+  const incRows=d.incidencias.map((v,i)=>{
+    const exec=d.execItems[i];
+    const na_obra=(exec!=null&&v>0)?(v/100*exec).toFixed(2):'';
+    return [i+1, SERVICOS[i], v, exec!=null?exec:'', na_obra];
+  });
+  const totalInc=d.incidencias.reduce((a,b)=>a+b,0);
+  const totalNaObra=incRows.reduce((a,r)=>a+(parseFloat(r[4])||0),0);
+
+  const cronoRows=d.crono.map((r,i)=>[
+    i===0?'Pré-executado':'Etapa '+i,
+    r.perc||0, r.acumPLS||0, r.acumAfer||'', r.acumAcat||''
+  ]);
+
+  const raeData=[
+    ['CAIXA ECONÔMICA FEDERAL — RAE — Planilha de Acompanhamento de Evolução de Obra'],
+    [],
+    ['Proponente:',d.nome,'','CPF:',d.cpf,'','Telefone:',d.tel],
+    ['RTE:',d.rte,'','CAU/CREA:',d.cau,'UF:',d.uf_rte,'CPF RTE:',d.cpf_rte],
+    ['Endereço:',d.end,'','','Complemento:',d.comp],
+    ['Bairro:',d.bairro,'CEP:',d.cep,'Município:',d.municipio,'UF:',d.uf],
+    ['Matrícula:',d.matricula,'Ofício:',d.oficio,'Comarca:',d.comarca],
+    ['Valor do Terreno R$:',d.vt,'','Valor do Imóvel R$:',d.vi],
+    ['Finalidade:',d.finalidade,'','Repactuação:',d.repact],
+    ['Data da Vistoria:',d.dataVist,'','Prazo (meses):',d.prazo,'','Nº Etapas:',d.etapas],
+    d.inicio?['Início Contagem:',d.inicio,'','Término Previsto:',d.termino]:[''],
+    [],
+    ['HABITAÇÃO','','','',''],
+    ['#','Serviço','Incidência (%)','Execução do Item (%)','Execução na Obra (%)'],
+    ...incRows,
+    [],
+    ['','MENSURADO ACUMULADO ATUAL',totalInc.toFixed(2),'',totalNaObra.toFixed(2)],
+    [],
+    ['CRONOGRAMA FÍSICO-FINANCEIRO'],
+    ['Etapa','% Parcela','% Acum. Proposto (PLS)','% Acum. Aferido','% Acum. Acatado'],
+    ...cronoRows,
+  ];
+  const wsRae=XLSX.utils.aoa_to_sheet(raeData);
+  wsRae['!cols']=[{wch:4},{wch:42},{wch:16},{wch:20},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,wsRae,'RAE');
+
+  // ─── ABA 3: RESUMO EXECUTIVO ───
+  const wsRes=XLSX.utils.aoa_to_sheet([
+    ['RESUMO DO PROCESSO'],[''],
+    ['DADO','VALOR'],
+    ['Nome do Proponente',d.nome],['CPF',d.cpf],['Telefone',d.tel],
+    ['RTE',d.rte],['CAU/CREA',d.cau],['UF',d.uf_rte],['CPF RTE',d.cpf_rte],
+    ['Endereço',d.end+' '+d.comp],['Bairro',d.bairro],['CEP',d.cep],
+    ['Município',d.municipio+'/'+d.uf],['Matrícula',d.matricula],
+    ['Ofício/Cartório',d.oficio],['Comarca',d.comarca+'/'+d.uf_comarca],
+    ['Valor Terreno R$',d.vt],['Valor Imóvel R$',d.vi],
+    ['Tipo',d.tipo],['Uso',d.uso],
+    ['Finalidade',d.finalidade],['Repactuação',d.repact],
+    ['Data Vistoria',d.dataVist],['Prazo (meses)',d.prazo],['Nº Etapas',d.etapas],
+    ['Data Início',d.inicio],['Término Previsto',d.termino],
+    ['Gerado em',new Date().toLocaleString('pt-BR')],
+    [''],['INCIDÊNCIAS'],['#','Serviço','Incidência (%)'],
+    ...d.incidencias.map((v,i)=>[i+1,SERVICOS[i],v]),
+    ['','Total',totalInc.toFixed(2)],
+  ]);
+  wsRes['!cols']=[{wch:26},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,wsRes,'Resumo');
+
+  // Salvar no histórico
+  const cliente={
+    id:Date.now().toString(),data:new Date().toISOString(),raeGerado:true,
+    nome:d.nome,cpf:d.cpf,rte:d.rte,municipio:d.municipio,bairro:d.bairro,cep:d.cep,
+    endereco:d.end,complemento:d.comp,matricula:d.matricula,oficio:d.oficio,
+    comarca:d.comarca,valorTerreno:d.vt,valorImovel:d.vi,
+    finalidade:d.finalidade,incidencias:d.incidencias,prazo:d.prazo,etapas:d.etapas,
+  };
+  clientes.push(cliente);
+  save();
+  updateSB();
+
+  const nome='RAE_'+d.nome.split(' ').slice(0,2).join('_').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'.xlsx';
+  XLSX.writeFile(wb,nome);
+  toast('RAE gerado e salvo no histórico!','success');
+  setTimeout(()=>showPage('dashboard'),1400);
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
 function renderDashboard(){
   const now=new Date();
   const total=clientes.length;
@@ -405,309 +850,118 @@ function renderDashboard(){
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-raes').textContent=raes;
   document.getElementById('d-mes').textContent=mes;
-  document.getElementById('d-municipios').textContent=muns;
-  document.getElementById('sb-total').textContent=total;
-  document.getElementById('sb-mes').textContent=mes;
-  document.getElementById('sb-raes').textContent=raes;
-  const recent=[...clientes].reverse().slice(0,8);
-  const body=document.getElementById('dash-table');
-  if(!recent.length){body.innerHTML=`<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-title">Nenhum processo ainda</div><div class="empty-desc">Clique em "+ Novo Processo" para começar</div></div>`;return;}
-  body.innerHTML=renderTable(recent);
+  document.getElementById('d-mun').textContent=muns;
+  updateSB();
+  const el=document.getElementById('dash-table');
+  const list=[...clientes].reverse().slice(0,10);
+  el.innerHTML=list.length?buildTable(list):`<div class="empty"><div class="empty-title">Nenhum processo ainda</div><div class="empty-sub">Clique em "+ Novo processo" para começar</div></div>`;
 }
 
-function renderTable(list){
-  return`<table><thead><tr><th>Cliente</th><th>Município</th><th>Matrícula</th><th>V. Imóvel</th><th>Situação</th><th>Data</th><th></th></tr></thead><tbody>${list.map(c=>`<tr>
-    <td><div class="td-name">${c.nome}</div><div class="td-cpf">${c.cpf||''}</div></td>
+function buildTable(list){
+  return`<table><thead><tr>
+    <th>Cliente</th><th>Município</th><th>Matrícula</th><th>V. Imóvel</th><th>Etapas</th><th>Status</th><th>Data</th><th></th>
+  </tr></thead><tbody>${list.map(c=>`<tr>
+    <td><div class="nc">${c.nome}</div><div class="sc">${c.cpf||''}</div></td>
     <td>${c.municipio||'—'}</td>
-    <td style="font-size:11px">${c.matricula||'—'}</td>
-    <td style="color:var(--gold2)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</td>
-    <td><span class="badge ${c.raeGerado?'badge-green':'badge-blue'}">${c.raeGerado?'✓ RAE gerado':'⏳ Pendente'}</span></td>
+    <td style="font-family:var(--mono);font-size:12px">${c.matricula||'—'}</td>
+    <td style="font-family:var(--mono);font-size:12px;color:var(--amber)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</td>
+    <td style="font-family:var(--mono);font-size:12px">${c.etapas||'—'}</td>
+    <td><span class="badge ${c.raeGerado?'bg':'bb'}">${c.raeGerado?'RAE gerado':'Pendente'}</span></td>
     <td style="font-size:11px;color:var(--text3)">${new Date(c.data).toLocaleDateString('pt-BR')}</td>
     <td><button class="btn btn-ghost btn-sm" onclick="verCliente('${c.id}')">Ver</button></td>
   </tr>`).join('')}</tbody></table>`;
 }
 
 function renderClientes(){
-  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
-  const f=clientes.filter(c=>c.nome.toLowerCase().includes(q)||(c.municipio||'').toLowerCase().includes(q)||(c.cpf||'').includes(q));
-  const body=document.getElementById('clientes-body');
-  if(!f.length){body.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">${q?'Nenhum resultado':'Nenhum cliente'}</div><div class="empty-desc">${q?'Tente outro termo':'Adicione um processo para começar'}</div></div>`;return;}
-  body.innerHTML=renderTable([...f].reverse());
+  const q=(document.getElementById('search-q')?.value||'').toLowerCase();
+  const f=clientes.filter(c=>c.nome.toLowerCase().includes(q)||(c.municipio||'').toLowerCase().includes(q)||(c.cpf||'').includes(q)||(c.matricula||'').includes(q));
+  const el=document.getElementById('clientes-body');
+  el.innerHTML=f.length?buildTable([...f].reverse()):`<div class="empty"><div class="empty-title">${q?'Nenhum resultado':'Nenhum cliente'}</div><div class="empty-sub">${q?'Tente outro termo':'Adicione um processo para começar'}</div></div>`;
 }
 
-// ── CLIENT DETAIL ──
+// ═══════════════════════════════════════════
+// MODAL DETALHE
+// ═══════════════════════════════════════════
 function verCliente(id){
-  const c=clientes.find(x=>x.id===id);
-  if(!c)return;
-  document.getElementById('modal-detail-content').innerHTML=`
-    <div class="detail-name">${c.nome}</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:20px">CPF: ${c.cpf||'—'} · RTE: ${c.rte||'—'}</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-      <div class="detail-card"><div class="detail-card-label">Município</div><div class="detail-card-val">${c.municipio||'—'}</div></div>
-      <div class="detail-card"><div class="detail-card-label">Matrícula</div><div class="detail-card-val">${c.matricula||'—'}</div></div>
-      <div class="detail-card"><div class="detail-card-label">Valor Imóvel</div><div class="detail-card-val" style="color:var(--gold2)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</div></div>
-      <div class="detail-card"><div class="detail-card-label">Bairro</div><div class="detail-card-val">${c.bairro||'—'}</div></div>
-      <div class="detail-card"><div class="detail-card-label">CEP</div><div class="detail-card-val">${c.cep||'—'}</div></div>
-      <div class="detail-card"><div class="detail-card-label">Valor Terreno</div><div class="detail-card-val">${c.valorTerreno?'R$ '+Number(c.valorTerreno).toLocaleString('pt-BR'):'—'}</div></div>
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  document.getElementById('modal-content').innerHTML=`
+    <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:2px">${c.nome}</div>
+    <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-bottom:20px">${c.cpf||''}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Município</div><div style="font-size:13px;font-weight:500">${c.municipio||'—'}</div><div style="font-size:11px;color:var(--text3)">${c.bairro||''}</div></div>
+      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Matrícula</div><div style="font-size:13px;font-weight:500;font-family:var(--mono)">${c.matricula||'—'}</div><div style="font-size:11px;color:var(--text3)">${c.oficio||''}</div></div>
+      <div class="card card-sm"><div class="fl" style="display:block;margin-bottom:4px">Valor do imóvel</div><div style="font-size:13px;font-weight:500;color:var(--amber);font-family:var(--mono)">${c.valorImovel?'R$ '+Number(c.valorImovel).toLocaleString('pt-BR'):'—'}</div><div style="font-size:11px;color:var(--text3)">Terreno: ${c.valorTerreno?'R$ '+Number(c.valorTerreno).toLocaleString('pt-BR'):'—'}</div></div>
     </div>
-    <div class="detail-card" style="margin-bottom:12px"><div class="detail-card-label">Endereço</div><div class="detail-card-val">${c.endereco||'—'} ${c.complemento||''}</div></div>
-    <div class="detail-card"><div class="detail-card-label">Finalidade</div><div class="detail-card-val" style="font-size:12px">${c.finalidade||'—'}</div></div>
-    ${c.incidencias?`<div style="margin-top:16px"><div class="form-label" style="margin-bottom:8px">INCIDÊNCIAS</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">${c.incidencias.map((v,i)=>`<div style="background:var(--bg3);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3)">${i+1}. ${SERVICOS[i].substring(0,12)}</div><div style="color:var(--accent2);font-size:11px;margin-top:2px">${v}%</div></div>`).join('')}</div></div>`:''}`;
-  document.getElementById('btn-modal-baixar').onclick=()=>{closeModal();baixarRAECliente(id);};
-  document.getElementById('btn-modal-del').onclick=()=>{if(confirm('Excluir este cliente?')){clientes=clientes.filter(x=>x.id!==id);save();closeModal();renderClientes();renderDashboard();toast('Cliente excluído','info');}};
-  document.getElementById('modal-detail').classList.remove('hidden');
+    <div style="font-size:12px;display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin-bottom:16px">
+      <span style="color:var(--text3)">RTE</span><span style="font-weight:500">${c.rte||'—'}</span>
+      <span style="color:var(--text3)">Endereço</span><span>${c.endereco||'—'} ${c.complemento||''}</span>
+      <span style="color:var(--text3)">Finalidade</span><span>${c.finalidade||'—'}</span>
+      <span style="color:var(--text3)">Prazo / Etapas</span><span style="font-family:var(--mono)">${c.prazo||'—'} meses / ${c.etapas||'—'} etapas</span>
+      <span style="color:var(--text3)">Cadastrado</span><span>${new Date(c.data).toLocaleDateString('pt-BR')}</span>
+    </div>
+    ${c.incidencias?`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Incidências</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
+      ${c.incidencias.map((v,i)=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3)">${i+1}. ${SERVICOS[i].substring(0,13)}</div><div style="font-size:12px;font-weight:500;font-family:var(--mono);color:var(--blue);margin-top:2px">${v.toFixed(2)}%</div></div>`).join('')}
+    </div>`:''}`;
+  document.getElementById('btn-baixar').onclick=()=>{closeModal();baixarCliente(id);};
+  document.getElementById('btn-del').onclick=()=>{if(confirm('Excluir este cliente?')){clientes=clientes.filter(x=>x.id!==id);save();closeModal();renderClientes();renderDashboard();toast('Excluído','info');}};
+  document.getElementById('modal').classList.remove('hidden');
 }
+function closeModal(){document.getElementById('modal').classList.add('hidden');}
 
-function closeModal(){document.getElementById('modal-detail').classList.add('hidden');}
-
-// ── FILE UPLOAD ──
-function handleDrag(e,t){e.preventDefault();document.getElementById('zone-'+t).classList.add('drag');}
-function handleDragLeave(t){document.getElementById('zone-'+t).classList.remove('drag');}
-function handleDrop(e,t){e.preventDefault();handleDragLeave(t);const f=e.dataTransfer.files[0];if(f)processFile(f,t);}
-function handleFile(e,t){const f=e.target.files[0];if(f)processFile(f,t);}
-
-function processFile(file,type){
-  if(!file.name.toLowerCase().endsWith('.pdf')){toast('Apenas arquivos PDF são aceitos','error');return;}
-  uploadedFiles[type]=file;
-  const prev=document.getElementById('preview-'+type);
-  prev.innerHTML=`<div class="file-preview"><div style="font-size:22px">📄</div><div style="flex:1"><div class="file-name">${file.name}</div><div class="file-size">${(file.size/1024).toFixed(0)} KB</div></div><div class="file-ok">✓ Pronto</div><button class="btn btn-ghost btn-sm" onclick="removeFile('${type}')">✕</button></div>`;
-  prev.classList.remove('hidden');
-  document.getElementById('zone-'+type).style.display='none';
-}
-
-function removeFile(type){
-  uploadedFiles[type]=null;
-  document.getElementById('preview-'+type).classList.add('hidden');
-  document.getElementById('zone-'+type).style.display='';
-}
-
-function checkApiBanner(){
-  const cfg=JSON.parse(localStorage.getItem('rae_config')||'{}');
-  document.getElementById('api-banner').classList.toggle('hidden',!!cfg.apiKey);
-}
-
-// ── IA EXTRACTION ──
-async function iniciarExtracao(){
-  if(!uploadedFiles.pci||!uploadedFiles.lai){toast('Faça upload da PCI e do Laudo primeiro','error');return;}
-  const cfg=JSON.parse(localStorage.getItem('rae_config')||'{}');
-  if(!cfg.apiKey){toast('Configure sua API Key em Configurações','error');showPage('config');return;}
-
-  showProcessing('Lendo documentos...');
-  try{
-    const[pciB64,laiB64]=await Promise.all([fileToBase64(uploadedFiles.pci),fileToBase64(uploadedFiles.lai)]);
-    setProcessingStep('Enviando para Claude...');
-
-    const prompt=`Analise os dois PDFs (PCI - Proposta de Construção Individual e LAI - Laudo de Análise da Caixa Econômica Federal).
-Extraia os dados e retorne SOMENTE um JSON válido, sem markdown, sem explicações:
-{"nome":"","cpf":"","telefone":"","rte":"","cau":"","uf_rte":"","cpf_rte":"","telefone_rte":"","endereco":"","complemento":"","bairro":"","cep":"","municipio":"","matricula":"","oficio":"","valor_terreno":0,"valor_imovel":0,"incidencias":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}
-
-Regras:
-- incidencias: array de 20 números com os Pesos (%) do Orçamento Proposto do Laudo, na ordem: Serv.Preliminares, Infraestrutura, Supraestrutura, Paredes/Painéis, Esquadrias, Vidros/Plásticos, Coberturas, Impermeabilizações, Rev.Internos, Forros, Rev.Externos, Pintura, Pisos, Acabamentos, Inst.Elétricas, Inst.Hidráulicas, Esgoto/Ag.Pluviais, Louças/Metais, Complementos, Outros
-- valor_imovel: valor do imóvel considerado pronto (do Laudo)
-- valor_terreno: numérico sem formatação
-- rte: Responsável Técnico pela EXECUÇÃO da obra (não o de projeto)
-Retorne apenas o JSON.`;
-
-    const response=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
-        messages:[{role:'user',content:[
-          {type:'document',source:{type:'base64',media_type:'application/pdf',data:pciB64}},
-          {type:'document',source:{type:'base64',media_type:'application/pdf',data:laiB64}},
-          {type:'text',text:prompt}
-        ]}]
-      })
-    });
-
-    if(!response.ok){const err=await response.json();throw new Error(err.error?.message||'Erro na API ('+response.status+')');}
-    const data=await response.json();
-    const text=data.content.map(b=>b.text||'').join('');
-    const clean=text.replace(/```json|```/g,'').trim();
-    const extracted=JSON.parse(clean);
-    setProcessingStep('Preenchendo formulário...');
-    await new Promise(r=>setTimeout(r,300));
-    hideProcessing();
-    preencherFormulario(extracted);
-  }catch(e){
-    hideProcessing();
-    console.error(e);
-    toast('Erro: '+e.message,'error');
-  }
-}
-
-function preencherFormulario(d){
-  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
-  set('r-nome',d.nome);set('r-cpf',d.cpf);set('r-tel',d.telefone);
-  set('r-rte',d.rte);set('r-cau',d.cau);set('r-uf-rte',d.uf_rte);set('r-cpf-rte',d.cpf_rte);set('r-tel-rte',d.telefone_rte);
-  set('r-end',d.endereco);set('r-comp',d.complemento);set('r-bairro',d.bairro);
-  set('r-cep',d.cep);set('r-municipio',d.municipio);
-  set('r-matricula',d.matricula);set('r-oficio',d.oficio);
-  set('r-vt',d.valor_terreno||0);set('r-vi',d.valor_imovel||0);
-
-  const incs=d.incidencias||Array(20).fill(0);
-  const total=incs.reduce((a,b)=>a+b,0);
-  document.getElementById('inc-tbody').innerHTML=incs.map((v,i)=>`<tr>
-    <td style="font-size:11px;color:var(--text3);width:30px">${i+1}</td>
-    <td style="color:var(--text2);font-size:12px">${SERVICOS[i]}</td>
-    <td style="text-align:right"><input class="inc-val-input" type="number" step="0.01" value="${v}" onchange="recalcTotal()">%</td>
-    <td><div class="inc-bar"><div class="inc-bar-fill" style="width:${Math.min(v/12*100,100)}%"></div></div></td>
-  </tr>`).join('');
-  const tEl=document.getElementById('inc-total');
-  tEl.textContent=total.toFixed(2)+'%';
-  tEl.style.color=Math.abs(total-100)<0.5?'var(--green)':'var(--red)';
-
-  document.getElementById('step-review').classList.remove('hidden');
-  document.getElementById('step-review').scrollIntoView({behavior:'smooth',block:'start'});
-  toast('✓ Dados extraídos! Revise e gere o RAE.','success');
-}
-
-function recalcTotal(){
-  const inputs=document.querySelectorAll('#inc-tbody .inc-val-input');
-  const t=Array.from(inputs).reduce((a,i)=>a+(parseFloat(i.value)||0),0);
-  const el=document.getElementById('inc-total');
-  el.textContent=t.toFixed(2)+'%';
-  el.style.color=Math.abs(t-100)<0.5?'var(--green)':'var(--red)';
-}
-
-function resetUpload(){
-  uploadedFiles={pci:null,lai:null};
-  ['pci','lai'].forEach(t=>{document.getElementById('preview-'+t).classList.add('hidden');document.getElementById('zone-'+t).style.display='';});
-  document.getElementById('step-review').classList.add('hidden');
-}
-
-// ── GERAR RAE ──
-function gerarRAE(){
-  const dados=coletarFormulario();
-  if(!dados.nome){toast('Preencha pelo menos o nome do proponente','error');return;}
-  const cliente={
-    id:Date.now().toString(),data:new Date().toISOString(),raeGerado:true,
-    nome:dados.nome,cpf:dados.cpf,rte:dados.rte,
-    municipio:dados.municipio,bairro:dados.bairro,cep:dados.cep,
-    endereco:dados.endereco,complemento:dados.complemento,
-    matricula:dados.matricula,oficio:dados.oficio,
-    valorTerreno:dados.valorTerreno,valorImovel:dados.valorImovel,
-    finalidade:dados.finalidade,incidencias:dados.incidencias,
+function baixarCliente(id){
+  const c=clientes.find(x=>x.id===id);if(!c)return;
+  const d={
+    nome:c.nome,cpf:c.cpf,tel:'',rte:c.rte||'',cau:'',uf_rte:'',cpf_rte:'',tel_rte:'',
+    finalidade:c.finalidade||'',repact:'Não',dataVist:'',
+    end:c.endereco||'',comp:c.complemento||'',bairro:c.bairro||'',cep:c.cep||'',municipio:c.municipio||'',uf:'SP',
+    matricula:c.matricula||'',oficio:c.oficio||'',comarca:c.comarca||'',uf_comarca:'SP',
+    vt:c.valorTerreno||0,vi:c.valorImovel||0,tipo:'Casa',uso:'Residencial',lat:'',lng:'',
+    prazo:c.prazo||7,etapas:c.etapas||7,inicio:'',termino:'',
+    incidencias:c.incidencias||Array(20).fill(0),
+    execItems:Array(20).fill(null),
+    crono:[{perc:0,acumPLS:0,acumAfer:'',acumAcat:''}],
   };
-  clientes.push(cliente);save();updateSidebar();
-  gerarXLSX(dados);
-  toast('RAE gerado com sucesso!','success');
-  setTimeout(()=>showPage('dashboard'),1500);
-}
-
-function coletarFormulario(){
-  const g=id=>document.getElementById(id)?.value||'';
-  const incs=Array.from(document.querySelectorAll('#inc-tbody .inc-val-input')).map(i=>parseFloat(i.value)||0);
-  return{
-    nome:g('r-nome'),cpf:g('r-cpf'),telefone:g('r-tel'),
-    rte:g('r-rte'),cau:g('r-cau'),uf_rte:g('r-uf-rte'),cpf_rte:g('r-cpf-rte'),telefone_rte:g('r-tel-rte'),
-    endereco:g('r-end'),complemento:g('r-comp'),bairro:g('r-bairro'),cep:g('r-cep'),municipio:g('r-municipio'),
-    matricula:g('r-matricula'),oficio:g('r-oficio'),
-    valorTerreno:parseFloat(g('r-vt'))||0,valorImovel:parseFloat(g('r-vi'))||0,
-    finalidade:g('sel-finalidade'),repactuacao:g('sel-repact'),incidencias:incs,
-  };
-}
-
-function gerarXLSX(d){
   const wb=XLSX.utils.book_new();
-  // ABA 1: INÍCIO VISTORIA
-  const wsIni=XLSX.utils.aoa_to_sheet([
-    ['RAE - Relatório de Acompanhamento de Evolução de Obra'],[''],
-    ['IDENTIFICAÇÃO'],
-    ['Proponente',d.nome,'CPF',d.cpf,'Telefone',d.telefone],[''],
-    ['RTE',d.rte,'CAU/CREA',d.cau,'UF RTE',d.uf_rte,'CPF RTE',d.cpf_rte,'Tel RTE',d.telefone_rte],[''],
-    ['IMÓVEL'],
-    ['Endereço',d.endereco,'Complemento',d.complemento],
-    ['Bairro',d.bairro,'CEP',d.cep,'Município',d.municipio,'UF','SP'],
-    ['Valor Terreno',d.valorTerreno,'Matrícula',d.matricula,'Ofício',d.oficio],[''],
-    ['Tipo','Casa','Uso','Residencial'],
-    ['Finalidade',d.finalidade],
-    ['Repactuação',d.repactuacao],
-  ]);
-  wsIni['!cols']=[{wch:18},{wch:30},{wch:14},{wch:20},{wch:12},{wch:20}];
-  XLSX.utils.book_append_sheet(wb,wsIni,'Início Vistoria');
-
-  // ABA 2: RAE
-  const raeRows=[
-    ['RAE - PLANILHA DE ACOMPANHAMENTO DE EVOLUÇÃO DE OBRA'],[''],
-    ['Cliente:',d.nome,'','CPF:',d.cpf],
-    ['RTE:',d.rte,'','CAU/CREA:',d.cau],
-    ['Endereço:',d.endereco+' '+d.complemento],
-    ['Bairro:',d.bairro,'CEP:',d.cep,'Município:',d.municipio,'UF:','SP'],
-    ['Matrícula:',d.matricula,'Ofício:',d.oficio],
-    ['V. Terreno R$:',d.valorTerreno,'V. Imóvel R$:',d.valorImovel],
-    ['Finalidade:',d.finalidade],[''],
-    ['#','SERVIÇO','Incidência (%)','Exec. do Item (%)','Exec. na Obra (%)'],
-    ...SERVICOS.map((s,i)=>[i+1,s,d.incidencias[i]||0,'','']),
-    ['','TOTAL',d.incidencias.reduce((a,b)=>a+b,0).toFixed(2),'',''],
+  const raeData=[['RAE — '+d.nome],[],
+    ['Proponente:',d.nome,'CPF:',d.cpf],['RTE:',d.rte],
+    ['Endereço:',d.end+' '+d.comp,'Município:',d.municipio],
+    ['Matrícula:',d.matricula,'V. Imóvel R$:',d.vi],
+    ['Finalidade:',d.finalidade],[],
+    ['#','Serviço','Incidência (%)'],
+    ...d.incidencias.map((v,i)=>[i+1,SERVICOS[i],v]),
+    ['','Total',d.incidencias.reduce((a,b)=>a+b,0).toFixed(2)],
   ];
-  const wsRae=XLSX.utils.aoa_to_sheet(raeRows);
-  wsRae['!cols']=[{wch:4},{wch:40},{wch:16},{wch:18},{wch:18}];
-  XLSX.utils.book_append_sheet(wb,wsRae,'RAE');
-
-  // ABA 3: RESUMO
-  const wsRes=XLSX.utils.aoa_to_sheet([
-    ['RESUMO DO PROCESSO'],[''],
-    ['Campo','Valor'],
-    ['Nome',d.nome],['CPF',d.cpf],['RTE',d.rte],
-    ['Município',d.municipio],['Matrícula',d.matricula],
-    ['V. Terreno',d.valorTerreno],['V. Imóvel',d.valorImovel],
-    ['Finalidade',d.finalidade],['Data Geração',new Date().toLocaleString('pt-BR')],
-  ]);
-  wsRes['!cols']=[{wch:20},{wch:40}];
-  XLSX.utils.book_append_sheet(wb,wsRes,'Resumo');
-
-  const nome='RAE_'+d.nome.split(' ').slice(0,2).join('_').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'.xlsx';
-  XLSX.writeFile(wb,nome);
-}
-
-function baixarRAECliente(id){
-  const c=clientes.find(x=>x.id===id);
-  if(!c)return;
-  gerarXLSX({...c,telefone:'',cau:'',uf_rte:'',cpf_rte:'',telefone_rte:'',finalidade:c.finalidade||'Vistoria para aferição de obra',repactuacao:'Não',incidencias:c.incidencias||Array(20).fill(0)});
+  const ws=XLSX.utils.aoa_to_sheet(raeData);
+  ws['!cols']=[{wch:4},{wch:40},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,'RAE');
+  XLSX.writeFile(wb,'RAE_'+d.nome.split(' ').slice(0,2).join('_').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')+'.xlsx');
   toast('RAE baixado!','success');
 }
 
-// ── CONFIG ──
-function loadConfig(){
-  const cfg=JSON.parse(localStorage.getItem('rae_config')||'{}');
-  document.getElementById('cfg-apikey').value=cfg.apiKey||'';
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function updateSB(){
+  document.getElementById('sb-total').textContent=clientes.length;
+  document.getElementById('sb-raes').textContent=clientes.filter(c=>c.raeGerado).length;
+  const now=new Date();
+  document.getElementById('sb-mes').textContent=clientes.filter(c=>{const d=new Date(c.data);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).length;
 }
-function salvarConfig(){
-  localStorage.setItem('rae_config',JSON.stringify({apiKey:document.getElementById('cfg-apikey').value.trim()}));
-  toast('Configuração salva!','success');
-  checkApiBanner();
-}
-async function testarAPI(){
-  const key=document.getElementById('cfg-apikey').value.trim();
-  if(!key){toast('Insira uma API Key primeiro','error');return;}
-  toast('Testando...','info');
-  try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:5,messages:[{role:'user',content:'ok'}]})});
-    if(r.ok||r.status===200){localStorage.setItem('rae_config',JSON.stringify({apiKey:key}));toast('✓ API conectada!','success');}
-    else toast('API Key inválida','error');
-  }catch(e){toast('Erro: '+e.message,'error');}
-}
-function exportarDados(){
-  const b=new Blob([JSON.stringify(clientes,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='rae_historico.json';a.click();
-  toast('Exportado!','success');
-}
-function limparDados(){
-  if(confirm('Apagar todos os dados permanentemente?')){clientes=[];save();renderDashboard();toast('Dados limpos.','info');}
+function toast(msg,type='info'){
+  const t=document.getElementById('toast');
+  const ic={success:'✓',error:'✕',info:'·'};
+  t.innerHTML=`<span style="font-weight:600">${ic[type]}</span> ${msg}`;
+  t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// ── UTILS ──
-function fileToBase64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('Erro ao ler arquivo'));r.readAsDataURL(file);});}
-function showProcessing(s){document.getElementById('processing').classList.remove('hidden');document.getElementById('proc-step').textContent=s;}
-function setProcessingStep(s){document.getElementById('proc-step').textContent=s;}
-function hideProcessing(){document.getElementById('processing').classList.add('hidden');}
-function toast(msg,type='info'){const t=document.getElementById('toast');const ic={success:'✓',error:'✕',info:'ℹ'};t.innerHTML=`<span>${ic[type]}</span> ${msg}`;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3500);}
-function updateSidebar(){document.getElementById('sb-total').textContent=clientes.length;document.getElementById('sb-raes').textContent=clientes.filter(c=>c.raeGerado).length;}
-
-document.addEventListener('DOMContentLoaded',()=>{renderDashboard();updateSidebar();checkApiBanner();});
+document.addEventListener('DOMContentLoaded',()=>{
+  buildIncidencias();
+  buildCrono();
+  renderDashboard();
+  updateSB();
+});
 </script>
 </body>
 </html>
