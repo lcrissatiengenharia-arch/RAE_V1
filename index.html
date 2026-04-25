@@ -1,533 +1,1069 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leitor de Alvará + Conferência PLS</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  <style>
-    :root{
-      --bg:#f6f8fc; --card:#fff; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
-      --primary:#1d4ed8; --primary-soft:#dbeafe; --ok:#166534; --ok-soft:#dcfce7;
-      --warn:#b45309; --warn-soft:#fef3c7; --bad:#b91c1c; --bad-soft:#fee2e2;
-      --shadow:0 12px 32px rgba(15,23,42,.08); --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,Arial,Helvetica,sans-serif; color:var(--text);
-      background:linear-gradient(180deg,#f8fafc 0%,#eef2ff 100%);
-    }
-    .container{max-width:1180px;margin:0 auto;padding:28px}
-    .hero{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}
-    h1{margin:0 0 8px;font-size:32px}
-    .hero p{margin:0;color:var(--muted);max-width:780px;line-height:1.5}
-    .pill{
-      background:#fff;border:1px solid #dbeafe;color:var(--primary);padding:10px 14px;border-radius:999px;
-      box-shadow:var(--shadow);font-weight:700;white-space:nowrap
-    }
-    .layout{display:grid;grid-template-columns:380px 1fr;gap:24px}
-    .card{
-      background:var(--card); border:1px solid rgba(15,23,42,.06); border-radius:var(--radius);
-      box-shadow:var(--shadow); overflow:hidden;
-    }
-    .card-header{
-      padding:18px 20px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:10px;
-    }
-    .card-body{padding:20px}
-    .status{
-      font-size:12px; font-weight:800; border-radius:999px; padding:7px 10px; background:#f3f4f6; color:#4b5563;
-    }
-    .status.ok{background:var(--ok-soft); color:var(--ok)}
-    .status.warn{background:var(--warn-soft); color:var(--warn)}
-    .status.bad{background:var(--bad-soft); color:var(--bad)}
-    .step{border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:14px}
-    .step-title{display:flex;align-items:center;gap:10px;font-weight:800;margin-bottom:10px}
-    .badge{
-      width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-      background:var(--primary-soft);color:var(--primary);font-size:13px;font-weight:800
-    }
-    .muted{font-size:13px;color:var(--muted);line-height:1.5}
-    .upload-box{
-      margin-top:12px; border:1.5px dashed #c7d2fe; background:#f8fbff; border-radius:16px; padding:14px;
-    }
-    input[type=file], input[type=text]{
-      width:100%; margin-top:10px; border:1px solid #d1d5db; background:#fff; border-radius:12px; padding:12px; font:inherit;
-    }
-    button{
-      border:none; border-radius:14px; padding:13px 16px; font:inherit; font-weight:800; cursor:pointer; transition:.2s ease;
-    }
-    button.primary{background:var(--primary); color:#fff}
-    button.secondary{background:#eef2ff; color:#3730a3}
-    button.ghost{background:#f3f4f6; color:#374151}
-    button:hover{transform:translateY(-1px)}
-    button:disabled{opacity:.55; cursor:not-allowed; transform:none}
-    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-    .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-    .mini{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:16px}
-    .mini-label{font-size:12px;color:var(--muted);margin-bottom:6px}
-    .mini-value{font-size:20px;font-weight:800;line-height:1.25}
-    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}
-    table{width:100%;border-collapse:collapse;min-width:780px}
-    th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-    th{background:#f8fafc;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#374151}
-    td input{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:10px 12px;font:inherit}
-    .log{display:grid;gap:10px;margin-top:18px}
-    .log-item{
-      display:flex;gap:10px;align-items:flex-start;background:#f8fafc;border:1px solid var(--line);
-      border-radius:14px;padding:12px 14px;font-size:13px;color:#374151
-    }
-    .dot{width:10px;height:10px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0}
-    .note{
-      margin-top:16px;padding:14px 16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;
-      color:#9a3412;font-size:13px;line-height:1.5
-    }
-    @media (max-width: 980px){
-      .layout{grid-template-columns:1fr}
-      .summary-grid{grid-template-columns:1fr}
-      .hero{flex-direction:column}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAE Auto-Preenchimento | Leonardo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161a23;
+    --surface2: #1e2433;
+    --border: #2a3045;
+    --accent: #3b82f6;
+    --accent2: #6366f1;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --card-glow: 0 0 40px rgba(59,130,246,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .logo-badge::before {
+    content: '';
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  /* Steps */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .step.active { border-color: var(--accent); }
+  .step.done { border-color: var(--success); }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 auto 10px;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .step.active .step-num { background: var(--accent); border-color: var(--accent); color: white; }
+  .step.done .step-num { background: var(--success); border-color: var(--success); color: white; }
+  .step.done .step-num::after { content: '✓'; }
+  .step.done .step-num span { display: none; }
+
+  .step-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .step-desc { font-size: 12px; color: var(--muted); opacity: 0.7; }
+
+  /* Upload cards */
+  .upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .upload-card {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upload-card:hover { border-color: var(--accent); background: var(--surface2); }
+  .upload-card.has-file { border-color: var(--success); border-style: solid; }
+  .upload-card.has-file::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(34,197,94,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .upload-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .upload-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .upload-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .upload-hint {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .file-name {
+    margin-top: 10px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--success);
+    background: rgba(34,197,94,0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
+    word-break: break-all;
+    display: none;
+  }
+
+  .upload-card.has-file .file-name { display: block; }
+
+  input[type="file"] { display: none; }
+
+  /* Base file - full width */
+  .upload-base {
+    grid-column: 1 / -1;
+  }
+
+  .upload-base .upload-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-align: left;
+    padding: 20px 24px;
+  }
+
+  .upload-base .upload-icon { margin-bottom: 0; flex-shrink: 0; }
+
+  /* Process button */
+  .btn-process {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .btn-process:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(59,130,246,0.4); }
+  .btn-process:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Progress area */
+  #progress-area {
+    display: none;
+    margin-top: 24px;
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .progress-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+
+  .progress-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.3s;
+  }
+
+  .progress-step.active { color: var(--text); }
+  .progress-step.done { color: var(--success); }
+  .progress-step.error { color: var(--error); }
+
+  .step-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .progress-step.active .step-icon {
+    background: rgba(59,130,246,0.15);
+    border-color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .progress-step.done .step-icon { background: rgba(34,197,94,0.15); border-color: var(--success); }
+  .progress-step.error .step-icon { background: rgba(239,68,68,0.15); border-color: var(--error); }
+
+  /* Result area */
+  #result-area {
+    display: none;
+    margin-top: 24px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--success);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 0 40px rgba(34,197,94,0.1);
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .result-icon {
+    width: 44px; height: 44px;
+    background: rgba(34,197,94,0.15);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .result-title { font-size: 18px; font-weight: 700; }
+  .result-subtitle { font-size: 13px; color: var(--muted); }
+
+  .data-preview {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .data-section {
+    margin-bottom: 20px;
+  }
+
+  .data-section:last-child { margin-bottom: 0; }
+
+  .data-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .data-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .data-item-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .data-item-value {
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .incidencia-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .incidencia-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .incidencia-table td {
+    padding: 7px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid rgba(42,48,69,0.5);
+  }
+
+  .incidencia-table tr:last-child td { border-bottom: none; }
+  .incidencia-table td:last-child { text-align: right; color: var(--accent); }
+
+  .btn-download {
+    width: 100%;
+    padding: 16px;
+    background: rgba(34,197,94,0.15);
+    border: 1px solid var(--success);
+    border-radius: 12px;
+    color: var(--success);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-download:hover { background: rgba(34,197,94,0.25); transform: translateY(-2px); }
+
+  .btn-reset {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+
+  .btn-reset:hover { border-color: var(--text); color: var(--text); }
+
+  /* Error area */
+  #error-area {
+    display: none;
+    margin-top: 16px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #fca5a5;
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .upload-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .data-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="hero">
-      <div>
-        <h1>Leitura de Alvará + Conferência com PLS</h1>
-        <p>
-          Suba o <strong>Alvará</strong> e a <strong>PLS</strong>. O sistema tenta localizar a
-          <strong>data de emissão do alvará</strong>, calcula automaticamente a <strong>validade em 2 anos</strong>,
-          compara o <strong>responsável técnico</strong> do alvará com o da PLS e exporta o resultado em <strong>Excel</strong>.
-        </p>
+<div class="container">
+
+  <header>
+    <div class="logo-badge">✦ Sistema RAE — Engenharia Civil</div>
+    <h1>Preenchimento Automático de Laudo</h1>
+    <p class="subtitle">Anexe o arquivo base, o Laudo (LAI) e a PCI.<br>A IA extrai os dados e preenche o Excel automaticamente.</p>
+  </header>
+
+  <!-- Steps indicator -->
+  <div class="steps">
+    <div class="step active" id="step1">
+      <div class="step-num"><span>1</span></div>
+      <div class="step-label">Upload</div>
+      <div class="step-desc">Anexar os 3 documentos</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-num"><span>2</span></div>
+      <div class="step-label">Extração</div>
+      <div class="step-desc">IA lê e interpreta os dados</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-num"><span>3</span></div>
+      <div class="step-label">Download</div>
+      <div class="step-desc">Excel preenchido pronto</div>
+    </div>
+  </div>
+
+  <!-- Upload section -->
+  <div id="upload-section">
+
+    <!-- Base Excel -->
+    <div class="upload-grid">
+      <div class="upload-base">
+        <div class="upload-card" id="card-base" onclick="document.getElementById('input-base').click()">
+          <span class="upload-icon">📊</span>
+          <div>
+            <div class="upload-type">Arquivo Base</div>
+            <div class="upload-label">RAE_BASE.xlsm / .xlsx</div>
+            <div class="upload-hint">Planilha base que será preenchida com os dados dos documentos</div>
+          </div>
+          <div class="file-name" id="name-base"></div>
+        </div>
+        <input type="file" id="input-base" accept=".xlsx,.xlsm,.xlsb" onchange="handleFile(this,'base')">
       </div>
-      <div class="pill">Alvará → data + validade • Alvará × PLS → Excel</div>
+
+      <!-- LAI PDF -->
+      <div class="upload-card" id="card-lai" onclick="document.getElementById('input-lai').click()">
+        <span class="upload-icon">📋</span>
+        <div class="upload-type">Laudo (LAI)</div>
+        <div class="upload-label">Laudo de Análise</div>
+        <div class="upload-hint">PDF com dados do imóvel, endereço, valores, orçamento e cronograma</div>
+        <div class="file-name" id="name-lai"></div>
+      </div>
+      <input type="file" id="input-lai" accept=".pdf" onchange="handleFile(this,'lai')">
+
+      <!-- PCI PDF -->
+      <div class="upload-card" id="card-pci" onclick="document.getElementById('input-pci').click()">
+        <span class="upload-icon">📄</span>
+        <div class="upload-type">Proposta (PCI)</div>
+        <div class="upload-label">Proposta de Construção Individual</div>
+        <div class="upload-hint">PDF com dados do proponente, RTE, áreas, cronograma financeiro</div>
+        <div class="file-name" id="name-pci"></div>
+      </div>
+      <input type="file" id="input-pci" accept=".pdf" onchange="handleFile(this,'pci')">
     </div>
 
-    <div class="layout">
-      <div class="card">
-        <div class="card-header">
-          <strong>Entradas</strong>
-          <span class="status warn" id="globalStatus">Aguardando arquivos</span>
+    <button class="btn-process" id="btn-process" onclick="processDocuments()" disabled>
+      ⚡ Extrair Dados e Preencher Excel
+    </button>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress-area">
+    <div class="progress-card">
+      <div class="progress-title">🔄 Processando documentos...</div>
+      <div class="progress-steps">
+        <div class="progress-step" id="prog-read">
+          <div class="step-icon">📂</div>
+          <span>Lendo os documentos PDF</span>
         </div>
-        <div class="card-body">
-          <div class="step">
-            <div class="step-title"><span class="badge">1</span> PDF do Alvará</div>
-            <div class="muted">O sistema procura a data de emissão e o nome do responsável técnico.</div>
-            <div class="upload-box">
-              <input type="file" id="alvaraFile" accept="application/pdf" />
-              <div class="muted" id="alvaraName">Nenhum arquivo selecionado.</div>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-title"><span class="badge">2</span> PDF da PLS</div>
-            <div class="muted">O sistema procura o nome do responsável técnico informado na PLS.</div>
-            <div class="upload-box">
-              <input type="file" id="plsFile" accept="application/pdf" />
-              <div class="muted" id="plsName">Nenhum arquivo selecionado.</div>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-title"><span class="badge">3</span> Processamento</div>
-            <div class="muted">Depois da leitura, você pode revisar os campos antes de exportar a planilha.</div>
-            <div class="actions">
-              <button class="primary" id="processBtn">Ler PDFs</button>
-              <button class="secondary" id="loadExampleBtn">Carregar exemplo</button>
-              <button class="ghost" id="downloadExcelBtn" disabled>Baixar Excel</button>
-              <button class="ghost" id="downloadJsonBtn" disabled>Baixar JSON</button>
-              <button class="ghost" id="clearBtn">Limpar</button>
-            </div>
-          </div>
-
-          <div class="note">
-            A leitura depende do texto existente dentro do PDF. Em arquivos escaneados como imagem, será necessário OCR em uma próxima versão.
-          </div>
+        <div class="progress-step" id="prog-extract">
+          <div class="step-icon">🧠</div>
+          <span>Extraindo dados com IA (Claude)</span>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <strong>Campos identificados</strong>
-          <span class="status" id="resultStatus">Pendente</span>
+        <div class="progress-step" id="prog-fill">
+          <div class="step-icon">✍️</div>
+          <span>Preenchendo a planilha Excel</span>
         </div>
-        <div class="card-body">
-          <div class="summary-grid">
-            <div class="mini">
-              <div class="mini-label">Data de emissão do Alvará</div>
-              <div class="mini-value" id="summaryEmissao">—</div>
-            </div>
-            <div class="mini">
-              <div class="mini-label">Validade do Alvará</div>
-              <div class="mini-value" id="summaryValidade">—</div>
-            </div>
-            <div class="mini">
-              <div class="mini-label">Conferência do RT</div>
-              <div class="mini-value" id="summaryRT">—</div>
-            </div>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Célula / Campo</th>
-                  <th>Valor identificado</th>
-                  <th>Origem</th>
-                </tr>
-              </thead>
-              <tbody id="mappingTable"></tbody>
-            </table>
-          </div>
-
-          <div class="log" id="log"></div>
+        <div class="progress-step" id="prog-export">
+          <div class="step-icon">💾</div>
+          <span>Gerando arquivo para download</span>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Error -->
+  <div id="error-area"></div>
+
+  <!-- Result -->
+  <div id="result-area">
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-icon">✅</div>
+        <div>
+          <div class="result-title">Planilha preenchida com sucesso!</div>
+          <div class="result-subtitle" id="result-subtitle">Dados extraídos e inseridos automaticamente</div>
+        </div>
+      </div>
+
+      <div class="data-preview" id="data-preview"></div>
+
+      <button class="btn-download" id="btn-download" onclick="downloadExcel()">
+        📥 Baixar Excel Preenchido
+      </button>
+      <button class="btn-reset" onclick="resetAll()">↩ Processar Novos Documentos</button>
+    </div>
+  </div>
+
+</div>
+
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+const files = { base: null, lai: null, pci: null };
+let extractedData = null;
+let workbookData = null;
 
-  const state = {
-    alvaraFile: null,
-    plsFile: null,
-    alvaraText: "",
-    plsText: "",
-    rows: []
-  };
+function handleFile(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  files[type] = file;
 
-  const alvaraFile = document.getElementById("alvaraFile");
-  const plsFile = document.getElementById("plsFile");
-  const alvaraName = document.getElementById("alvaraName");
-  const plsName = document.getElementById("plsName");
-  const processBtn = document.getElementById("processBtn");
-  const loadExampleBtn = document.getElementById("loadExampleBtn");
-  const downloadExcelBtn = document.getElementById("downloadExcelBtn");
-  const downloadJsonBtn = document.getElementById("downloadJsonBtn");
-  const clearBtn = document.getElementById("clearBtn");
-  const mappingTable = document.getElementById("mappingTable");
-  const log = document.getElementById("log");
-  const globalStatus = document.getElementById("globalStatus");
-  const resultStatus = document.getElementById("resultStatus");
-  const summaryEmissao = document.getElementById("summaryEmissao");
-  const summaryValidade = document.getElementById("summaryValidade");
-  const summaryRT = document.getElementById("summaryRT");
+  const card = document.getElementById('card-' + type);
+  const nameEl = document.getElementById('name-' + type);
+  card.classList.add('has-file');
+  nameEl.textContent = file.name;
 
-  function addLog(message){
-    const item = document.createElement("div");
-    item.className = "log-item";
-    item.innerHTML = `<span class="dot"></span><div>${message}</div>`;
-    log.prepend(item);
+  checkReady();
+}
+
+function checkReady() {
+  const ready = files.base && files.lai && files.pci;
+  document.getElementById('btn-process').disabled = !ready;
+}
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function setProgress(id, state) {
+  const el = document.getElementById(id);
+  el.className = 'progress-step ' + state;
+  const icons = { active: '⟳', done: '✓', error: '✕', '': '○' };
+  el.querySelector('.step-icon').textContent = state in icons ? icons[state] : '○';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-area');
+  el.style.display = 'block';
+  el.textContent = '⚠️ ' + msg;
+  document.getElementById('progress-area').style.display = 'none';
+}
+
+async function processDocuments() {
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('progress-area').style.display = 'block';
+  document.getElementById('error-area').style.display = 'none';
+  document.getElementById('result-area').style.display = 'none';
+
+  setStepActive(2);
+
+  try {
+    // Step 1: Read files
+    setProgress('prog-read', 'active');
+    const [laiB64, pciB64, baseBuffer] = await Promise.all([
+      toBase64(files.lai),
+      toBase64(files.pci),
+      files.base.arrayBuffer()
+    ]);
+    setProgress('prog-read', 'done');
+
+    // Step 2: Extract with Claude AI
+    setProgress('prog-extract', 'active');
+    const data = await extractWithClaude(laiB64, pciB64);
+    extractedData = data;
+    setProgress('prog-extract', 'done');
+
+    // Step 3: Fill Excel
+    setProgress('prog-fill', 'active');
+    const filledBuffer = await fillExcel(baseBuffer, data);
+    workbookData = filledBuffer;
+    setProgress('prog-fill', 'done');
+
+    // Step 4: Prepare download
+    setProgress('prog-export', 'active');
+    await new Promise(r => setTimeout(r, 400));
+    setProgress('prog-export', 'done');
+
+    showResult(data);
+    setStepActive(3);
+
+  } catch (err) {
+    showError(err.message || 'Erro inesperado. Verifique o console para mais detalhes.');
+    console.error(err);
+    setStepActive(1);
   }
+}
 
-  function normalizeName(str){
-    return (str || "")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^\w\s]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toUpperCase();
-  }
+function setStepActive(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById('step' + i);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+    const num = el.querySelector('.step-num');
+    if (i < n) { num.innerHTML = ''; }
+    else { num.innerHTML = '<span>' + i + '</span>'; }
+  });
+}
 
-  function parseBRDate(value){
-    const m = value && value.match(/(\d{2})[\/.-](\d{2})[\/.-](\d{4})/);
-    if(!m) return null;
-    const d = Number(m[1]), mo = Number(m[2]) - 1, y = Number(m[3]);
-    const dt = new Date(y, mo, d);
-    if(dt.getFullYear() !== y || dt.getMonth() !== mo || dt.getDate() !== d) return null;
-    return dt;
-  }
+async function extractWithClaude(laiB64, pciB64) {
+  const prompt = `Você é um assistente especializado em documentos de engenharia civil da CAIXA ECONÔMICA FEDERAL.
 
-  function formatBRDate(date){
-    if(!date) return "";
-    const d = String(date.getDate()).padStart(2,"0");
-    const m = String(date.getMonth()+1).padStart(2,"0");
-    const y = date.getFullYear();
-    return `${d}/${m}/${y}`;
-  }
+Analise os dois documentos PDF fornecidos:
+1. LAI (Laudo de Análise) - contém dados do imóvel, endereço, valores, orçamento e cronograma
+2. PCI (Proposta de Construção Individual) - contém dados do proponente, responsável técnico, áreas, cronograma financeiro
 
-  function addYearsBR(date, years){
-    const d = new Date(date.getTime());
-    d.setFullYear(d.getFullYear() + years);
-    return d;
-  }
+Extraia TODOS os dados abaixo e retorne APENAS um JSON válido, sem texto adicional, sem markdown, sem explicações:
 
-  async function extractPdfText(file){
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-    let fullText = "";
-    for(let pageNum = 1; pageNum <= pdf.numPages; pageNum++){
-      const page = await pdf.getPage(pageNum);
-      const content = await page.getTextContent();
-      const pageText = content.items.map(item => item.str).join(" ");
-      fullText += "\n" + pageText;
-    }
-    return fullText;
-  }
+{
+  "proponente": "nome completo",
+  "cpf_proponente": "000.000.000-00",
+  "telefone_proponente": "(69) 00000-0000",
+  "email_proponente": "email",
+  "rte_nome": "nome do responsável técnico pela execução",
+  "rte_cau_crea": "número CAU/CREA",
+  "rte_uf": "sigla UF",
+  "rte_cpf": "CPF do RTE",
+  "rte_telefone": "telefone RTE",
+  "endereco": "endereço completo",
+  "complemento": "complemento",
+  "bairro": "bairro",
+  "cep": "CEP",
+  "municipio": "cidade",
+  "uf": "estado",
+  "coord_s": "coordenada sul (ex: 11°26'24.73\")",
+  "coord_w": "coordenada oeste",
+  "valor_terreno": 185000,
+  "matricula": "número da matrícula",
+  "oficio": "número do ofício/cartório",
+  "comarca": "comarca",
+  "uf_matricula": "UF da matrícula",
+  "tipo_imovel": "Casa",
+  "uso_imovel": "Residencial",
+  "incidencias": {
+    "servicos_preliminares": 3.84,
+    "infraestrutura": 6.90,
+    "supraestrutura": 12.46,
+    "paredes_paineis": 6.27,
+    "esquadrias": 6.99,
+    "vidros_plasticos": 2.39,
+    "coberturas": 6.27,
+    "impermeabilizacoes": 5.58,
+    "revestimentos_internos": 7.17,
+    "forros": 1.84,
+    "revestimentos_externos": 5.04,
+    "pintura": 5.40,
+    "pisos": 9.73,
+    "acabamentos": 1.33,
+    "inst_eletricas": 4.57,
+    "inst_hidraulicas": 3.99,
+    "inst_esgoto": 3.81,
+    "loucas_metais": 4.69,
+    "complementos": 1.74,
+    "outros_servicos": 0
+  },
+  "valor_imovel": 838000,
+  "prazo_execucao": 9,
+  "num_etapas": 9,
+  "cronograma": [
+    {"etapa": 1, "percentual": 15.0, "acumulado": 15.0},
+    {"etapa": 2, "percentual": 15.0, "acumulado": 30.0}
+  ]
+}
 
-  function findDateEmissao(text){
-    const patterns = [
-      /data\s+de\s+emiss[aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
-      /emiss[aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
-      /expedi[cç][aã]o\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i,
-      /emitido\s+em\s*[:\-]?\s*(\d{2}[\/.-]\d{2}[\/.-]\d{4})/i
-    ];
-    for(const p of patterns){
-      const m = text.match(p);
-      if(m) return m[1].replace(/\./g,"/").replace(/-/g,"/");
-    }
-    const allDates = [...text.matchAll(/\b(\d{2}[\/.-]\d{2}[\/.-]\d{4})\b/g)].map(m => m[1]);
-    return allDates.length ? allDates[0].replace(/\./g,"/").replace(/-/g,"/") : "";
-  }
+Se algum dado não estiver disponível, use null. Para os cronogramas, extraia todas as etapas que existirem no documento PCI.`;
 
-  function extractNameAfterLabel(text, labels){
-    for(const label of labels){
-      const regex = new RegExp(label + String.raw`\s*[:\-]?\s*([A-ZÀ-Ú][A-ZÀ-Ú\s'.-]{5,120})`, "i");
-      const match = text.match(regex);
-      if(match) return match[1].replace(/\s+/g," ").trim();
-    }
-    return "";
-  }
-
-  function cleanPersonName(value){
-    return (value || "")
-      .replace(/\b(CPF|CREA|CAU|CFT|RRT|ART|TRT)\b.*$/i, "")
-      .replace(/\s{2,}/g, " ")
-      .trim();
-  }
-
-  function findRTFromAlvara(text){
-    const labels = [
-      "respons[aá]vel\\s+t[eé]cnico",
-      "rt\\s+da\\s+obra",
-      "respons[aá]vel\\s+pela\\s+execu[cç][aã]o",
-      "engenheiro\\s+respons[aá]vel",
-      "arquiteto\\s+respons[aá]vel",
-      "profissional\\s+respons[aá]vel"
-    ];
-    return cleanPersonName(extractNameAfterLabel(text, labels));
-  }
-
-  function findRTFromPLS(text){
-    const labels = [
-      "respons[aá]vel\\s+t[eé]cnico\\s+pela\\s+execu[cç][aã]o\\s+da\\s+obra",
-      "rt\\s+pela\\s+execu[cç][aã]o\\s+de\\s+obras",
-      "respons[aá]vel\\s+t[eé]cnico",
-      "rte"
-    ];
-    return cleanPersonName(extractNameAfterLabel(text, labels));
-  }
-
-  function compareNames(a,b){
-    const na = normalizeName(a), nb = normalizeName(b);
-    if(!na || !nb) return {status:"Não foi possível confirmar", ok:false};
-    if(na === nb) return {status:"Confere", ok:true};
-    if(na.includes(nb) || nb.includes(na)) return {status:"Confere com pequena variação", ok:true};
-    return {status:"Não confere", ok:false};
-  }
-
-  function setStatuses(hasFiles, hasRows, bad=false){
-    if(bad){
-      globalStatus.textContent = "Falha na leitura";
-      globalStatus.className = "status bad";
-      resultStatus.textContent = "Revisar";
-      resultStatus.className = "status bad";
-      return;
-    }
-    if(hasRows){
-      globalStatus.textContent = "Leitura concluída";
-      globalStatus.className = "status ok";
-      resultStatus.textContent = "Campos identificados";
-      resultStatus.className = "status ok";
-    }else if(hasFiles){
-      globalStatus.textContent = "Pronto para ler";
-      globalStatus.className = "status warn";
-      resultStatus.textContent = "Pendente";
-      resultStatus.className = "status";
-    }else{
-      globalStatus.textContent = "Aguardando arquivos";
-      globalStatus.className = "status warn";
-      resultStatus.textContent = "Pendente";
-      resultStatus.className = "status";
-    }
-  }
-
-  function updateSummary(){
-    const get = label => (state.rows.find(r => r.campo === label) || {}).valor || "—";
-    summaryEmissao.textContent = get("Data emissão Alvará");
-    summaryValidade.textContent = get("Validade do Alvará");
-    summaryRT.textContent = get("Conferência RT Alvará x PLS");
-  }
-
-  function renderRows(){
-    mappingTable.innerHTML = "";
-    state.rows.forEach((row, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${row.campo}</td>
-        <td><input data-idx="${idx}" value="${row.valor || ""}" /></td>
-        <td>${row.origem}</td>
-      `;
-      mappingTable.appendChild(tr);
-    });
-    mappingTable.querySelectorAll("input").forEach(input => {
-      input.addEventListener("input", e => {
-        const idx = Number(e.target.dataset.idx);
-        state.rows[idx].valor = e.target.value;
-        updateSummary();
-      });
-    });
-    const enabled = state.rows.length > 0;
-    downloadExcelBtn.disabled = !enabled;
-    downloadJsonBtn.disabled = !enabled;
-    updateSummary();
-  }
-
-  function buildRows(alvaraDate, validadeDate, alvaraRT, plsRT, conf){
-    state.rows = [
-      { campo: "Data emissão Alvará", valor: alvaraDate || "", origem: "PDF do Alvará" },
-      { campo: "Validade do Alvará", valor: validadeDate || "", origem: "Calculado automaticamente (+2 anos)" },
-      { campo: "RT no Alvará", valor: alvaraRT || "", origem: "PDF do Alvará" },
-      { campo: "RT na PLS", valor: plsRT || "", origem: "PDF da PLS" },
-      { campo: "Conferência RT Alvará x PLS", valor: conf.status, origem: "Comparação automática" }
-    ];
-    renderRows();
-    setStatuses(Boolean(state.alvaraFile || state.plsFile), true, false);
-  }
-
-  function exportExcel(){
-    const wb = XLSX.utils.book_new();
-
-    const dados = [
-      ["Campo", "Valor identificado", "Origem"],
-      ...state.rows.map(r => [r.campo, r.valor, r.origem])
-    ];
-    const wsDados = XLSX.utils.aoa_to_sheet(dados);
-    wsDados["!cols"] = [{wch: 34}, {wch: 34}, {wch: 34}];
-    XLSX.utils.book_append_sheet(wb, wsDados, "Campos");
-
-    const resumo = [
-      ["Resumo da conferência", ""],
-      ["Data emissão Alvará", getRowValue("Data emissão Alvará")],
-      ["Validade do Alvará", getRowValue("Validade do Alvará")],
-      ["RT no Alvará", getRowValue("RT no Alvará")],
-      ["RT na PLS", getRowValue("RT na PLS")],
-      ["Conferência RT Alvará x PLS", getRowValue("Conferência RT Alvará x PLS")],
-      ["Arquivo do Alvará", state.alvaraFile ? state.alvaraFile.name : ""],
-      ["Arquivo da PLS", state.plsFile ? state.plsFile.name : ""]
-    ];
-    const wsResumo = XLSX.utils.aoa_to_sheet(resumo);
-    wsResumo["!cols"] = [{wch: 30}, {wch: 40}];
-    XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
-
-    const nome = "conferencia_alvara_pls.xlsx";
-    XLSX.writeFile(wb, nome);
-    addLog("Planilha Excel exportada.");
-  }
-
-  function getRowValue(label){
-    const row = state.rows.find(r => r.campo === label);
-    return row ? row.valor : "";
-  }
-
-  alvaraFile.addEventListener("change", e => {
-    state.alvaraFile = e.target.files[0] || null;
-    alvaraName.textContent = state.alvaraFile ? state.alvaraFile.name : "Nenhum arquivo selecionado.";
-    addLog(state.alvaraFile ? `Alvará carregado: <strong>${state.alvaraFile.name}</strong>.` : "Alvará removido.");
-    setStatuses(Boolean(state.alvaraFile || state.plsFile), state.rows.length > 0, false);
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: laiB64 } },
+          { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pciB64 } },
+          { type: 'text', text: prompt }
+        ]
+      }]
+    })
   });
 
-  plsFile.addEventListener("change", e => {
-    state.plsFile = e.target.files[0] || null;
-    plsName.textContent = state.plsFile ? state.plsFile.name : "Nenhum arquivo selecionado.";
-    addLog(state.plsFile ? `PLS carregada: <strong>${state.plsFile.name}</strong>.` : "PLS removida.");
-    setStatuses(Boolean(state.alvaraFile || state.plsFile), state.rows.length > 0, false);
-  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error('Erro na API Claude: ' + (err.error?.message || response.status));
+  }
 
-  processBtn.addEventListener("click", async () => {
-    if(!state.alvaraFile && !state.plsFile){
-      alert("Envie pelo menos um PDF para leitura.");
-      return;
-    }
-    try{
-      addLog("Iniciando leitura dos PDFs...");
-      state.alvaraText = state.alvaraFile ? await extractPdfText(state.alvaraFile) : "";
-      state.plsText = state.plsFile ? await extractPdfText(state.plsFile) : "";
+  const result = await response.json();
+  const text = result.content.map(b => b.text || '').join('');
+  
+  try {
+    const clean = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (e) {
+    throw new Error('Erro ao interpretar resposta da IA. Resposta: ' + text.substring(0, 200));
+  }
+}
 
-      const alvaraDateStr = findDateEmissao(state.alvaraText);
-      const alvaraDate = parseBRDate(alvaraDateStr);
-      const validade = alvaraDate ? addYearsBR(alvaraDate, 2) : null;
+async function fillExcel(buffer, data) {
+  const wb = XLSX.read(buffer, { type: 'array', bookVBA: true, cellStyles: true });
 
-      const alvaraRT = findRTFromAlvara(state.alvaraText);
-      const plsRT = findRTFromPLS(state.plsText);
-      const conf = compareNames(alvaraRT, plsRT);
+  // ---- Aba "Início Vistoria" ----
+  const wsIV = wb.Sheets['Início Vistoria'];
+  if (wsIV) {
+    // Based on field analysis: G=col7, data starts around row 42+
+    // Proponente row 43 (0-indexed 42), but XLSX uses A1 style
+    // Col G = col index 6 (0-based), row 43
+    setCellValue(wsIV, 'G43', data.proponente);
+    setCellValue(wsIV, 'AJ43', data.cpf_proponente);
+    setCellValue(wsIV, 'AP43', data.telefone_proponente);
+    
+    // RTE row 46
+    setCellValue(wsIV, 'G46', data.rte_nome);
+    setCellValue(wsIV, 'Z46', data.rte_cau_crea);
+    setCellValue(wsIV, 'AH46', data.rte_uf);
+    setCellValue(wsIV, 'AJ46', data.rte_cpf);
+    setCellValue(wsIV, 'AP46', data.rte_telefone);
 
-      buildRows(
-        alvaraDate ? formatBRDate(alvaraDate) : "",
-        validade ? formatBRDate(validade) : "",
-        alvaraRT,
-        plsRT,
-        conf
-      );
+    // Endereço row 49
+    setCellValue(wsIV, 'G49', data.endereco);
+    setCellValue(wsIV, 'AL49', data.complemento);
+    setCellValue(wsIV, 'AG50', data.coord_s);
+    setCellValue(wsIV, 'AK50', data.coord_w);
 
-      addLog("Leitura concluída. Revise os campos identificados.");
-      if(!alvaraDate) addLog("Não encontrei com segurança a data de emissão no Alvará. Revise manualmente.");
-      if(!alvaraRT) addLog("Não encontrei com segurança o nome do RT no Alvará. Revise manualmente.");
-      if(!plsRT) addLog("Não encontrei com segurança o nome do RT na PLS. Revise manualmente.");
-    }catch(error){
-      console.error(error);
-      setStatuses(Boolean(state.alvaraFile || state.plsFile), false, true);
-      addLog("Ocorreu um erro ao ler os PDFs. Verifique se os arquivos possuem texto selecionável.");
-      alert("Não foi possível ler os PDFs. Verifique se eles possuem texto selecionável.");
-    }
-  });
+    // Bairro/CEP/Município row 51
+    setCellValue(wsIV, 'G51', data.bairro);
+    setCellValue(wsIV, 'V51', data.cep);
+    setCellValue(wsIV, 'AA51', data.municipio);
+    setCellValue(wsIV, 'AS51', data.uf);
 
-  loadExampleBtn.addEventListener("click", () => {
-    buildRows("21/08/2025","21/08/2027","Pedro de Marchi Neto","Pedro de Marchi Neto",{status:"Confere", ok:true});
-    addLog("Exemplo carregado.");
-  });
+    // Valor terreno row 53
+    if (data.valor_terreno) setCellValue(wsIV, 'G53', data.valor_terreno);
+    setCellValue(wsIV, 'Q53', data.matricula);
+    setCellValue(wsIV, 'AA53', data.oficio);
+    setCellValue(wsIV, 'AJ53', data.comarca);
+    setCellValue(wsIV, 'AS53', data.uf_matricula || data.uf);
+  }
 
-  downloadExcelBtn.addEventListener("click", exportExcel);
+  // ---- Aba "RAE" ----
+  const wsRAE = wb.Sheets['RAE'];
+  if (wsRAE) {
+    // Identification same fields as Início Vistoria (shared via formulas normally, but we set directly)
+    setCellValue(wsRAE, 'G43', data.proponente);
+    setCellValue(wsRAE, 'AJ43', data.cpf_proponente);
+    setCellValue(wsRAE, 'AP43', data.telefone_proponente);
 
-  downloadJsonBtn.addEventListener("click", () => {
-    const payload = {
-      alvara: state.alvaraFile ? state.alvaraFile.name : null,
-      pls: state.plsFile ? state.plsFile.name : null,
-      campos: state.rows
+    setCellValue(wsRAE, 'G46', data.rte_nome);
+    setCellValue(wsRAE, 'Z46', data.rte_cau_crea);
+    setCellValue(wsRAE, 'AH46', data.rte_uf);
+    setCellValue(wsRAE, 'AJ46', data.rte_cpf);
+    setCellValue(wsRAE, 'AP46', data.rte_telefone);
+
+    setCellValue(wsRAE, 'G49', data.endereco);
+    setCellValue(wsRAE, 'AL49', data.complemento);
+    setCellValue(wsRAE, 'AG50', data.coord_s);
+    setCellValue(wsRAE, 'AK50', data.coord_w);
+
+    setCellValue(wsRAE, 'G51', data.bairro);
+    setCellValue(wsRAE, 'V51', data.cep);
+    setCellValue(wsRAE, 'AA51', data.municipio);
+    setCellValue(wsRAE, 'AS51', data.uf);
+
+    if (data.valor_terreno) setCellValue(wsRAE, 'G53', data.valor_terreno);
+    setCellValue(wsRAE, 'Q53', data.matricula);
+    setCellValue(wsRAE, 'AA53', data.oficio);
+    setCellValue(wsRAE, 'AJ53', data.comarca);
+    setCellValue(wsRAE, 'AS53', data.uf_matricula || data.uf);
+
+    // Valor imóvel (row 67 area) - AC66
+    if (data.valor_imovel) setCellValue(wsRAE, 'AC67', data.valor_imovel);
+
+    // Prazo execução
+    if (data.prazo_execucao) setCellValue(wsRAE, 'AN67', data.prazo_execucao);
+    if (data.num_etapas) setCellValue(wsRAE, 'AS67', data.num_etapas);
+
+    // Incidências - column S (rows 69-88)
+    const incidRows = {
+      'servicos_preliminares': 69,
+      'infraestrutura': 70,
+      'supraestrutura': 71,
+      'paredes_paineis': 72,
+      'esquadrias': 73,
+      'vidros_plasticos': 74,
+      'coberturas': 75,
+      'impermeabilizacoes': 76,
+      'revestimentos_internos': 77,
+      'forros': 78,
+      'revestimentos_externos': 79,
+      'pintura': 80,
+      'pisos': 81,
+      'acabamentos': 82,
+      'inst_eletricas': 83,
+      'inst_hidraulicas': 84,
+      'inst_esgoto': 85,
+      'loucas_metais': 86,
+      'complementos': 87,
+      'outros_servicos': 88
     };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "conferencia_alvara_pls.json";
-    a.click();
-    URL.revokeObjectURL(url);
-    addLog("JSON de conferência baixado.");
-  });
 
-  clearBtn.addEventListener("click", () => {
-    state.alvaraFile = null;
-    state.plsFile = null;
-    state.alvaraText = "";
-    state.plsText = "";
-    state.rows = [];
-    alvaraFile.value = "";
-    plsFile.value = "";
-    alvaraName.textContent = "Nenhum arquivo selecionado.";
-    plsName.textContent = "Nenhum arquivo selecionado.";
-    mappingTable.innerHTML = "";
-    log.innerHTML = "";
-    summaryEmissao.textContent = "—";
-    summaryValidade.textContent = "—";
-    summaryRT.textContent = "—";
-    downloadExcelBtn.disabled = true;
-    downloadJsonBtn.disabled = true;
-    setStatuses(false, false, false);
-    addLog("Tela reiniciada.");
-  });
+    if (data.incidencias) {
+      Object.entries(incidRows).forEach(([key, row]) => {
+        const val = data.incidencias[key];
+        if (val !== undefined && val !== null) {
+          setCellValue(wsRAE, 'S' + row, val);
+        }
+      });
+    }
 
-  setStatuses(false, false, false);
+    // Cronograma - col AE (rows 73+)
+    if (data.cronograma && Array.isArray(data.cronograma)) {
+      const cronoStartRow = 73;
+      data.cronograma.forEach((item, idx) => {
+        const row = cronoStartRow + idx;
+        if (row <= 108) {
+          if (item.acumulado !== undefined) setCellValue(wsRAE, 'AE' + row, item.acumulado);
+        }
+      });
+    }
+  }
+
+  const out = XLSX.write(wb, { type: 'array', bookType: 'xlsm', bookVBA: true });
+  return out;
+}
+
+function setCellValue(ws, addr, val) {
+  if (val === null || val === undefined) return;
+  if (!ws[addr]) ws[addr] = {};
+  ws[addr].v = val;
+  ws[addr].t = typeof val === 'number' ? 'n' : 's';
+  // Remove any formula to allow value to show
+  delete ws[addr].f;
+}
+
+function showResult(data) {
+  document.getElementById('progress-area').style.display = 'none';
+  document.getElementById('result-area').style.display = 'block';
+
+  const inc = data.incidencias || {};
+  const preview = document.getElementById('data-preview');
+
+  preview.innerHTML = `
+    <div class="data-section">
+      <div class="data-section-title">📋 Identificação — Início Vistoria</div>
+      <div class="data-grid">
+        <div class="data-item"><div class="data-item-label">Proponente</div><div class="data-item-value">${data.proponente || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">CPF</div><div class="data-item-value">${data.cpf_proponente || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">RTE</div><div class="data-item-value">${data.rte_nome || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">CAU/CREA</div><div class="data-item-value">${data.rte_cau_crea || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">Endereço</div><div class="data-item-value">${data.endereco || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">Município/UF</div><div class="data-item-value">${data.municipio || '—'}/${data.uf || '—'}</div></div>
+        <div class="data-item"><div class="data-item-label">Valor do Terreno</div><div class="data-item-value">R$ ${(data.valor_terreno||0).toLocaleString('pt-BR')}</div></div>
+        <div class="data-item"><div class="data-item-label">Valor do Imóvel</div><div class="data-item-value">R$ ${(data.valor_imovel||0).toLocaleString('pt-BR')}</div></div>
+      </div>
+    </div>
+
+    <div class="data-section">
+      <div class="data-section-title">📊 Incidências — Aba RAE</div>
+      <table class="incidencia-table">
+        <tr><th>Serviço</th><th>Incidência %</th></tr>
+        ${[
+          ['Serviços Preliminares e Gerais', inc.servicos_preliminares],
+          ['Infraestrutura', inc.infraestrutura],
+          ['Supraestrutura', inc.supraestrutura],
+          ['Paredes e Painéis', inc.paredes_paineis],
+          ['Esquadrias', inc.esquadrias],
+          ['Vidros e Plásticos', inc.vidros_plasticos],
+          ['Coberturas', inc.coberturas],
+          ['Impermeabilizações', inc.impermeabilizacoes],
+          ['Revestimentos Internos', inc.revestimentos_internos],
+          ['Forros', inc.forros],
+          ['Revestimentos Externos', inc.revestimentos_externos],
+          ['Pintura', inc.pintura],
+          ['Pisos', inc.pisos],
+          ['Acabamentos', inc.acabamentos],
+          ['Inst. Elétricas e Telefônicas', inc.inst_eletricas],
+          ['Instalações Hidráulicas', inc.inst_hidraulicas],
+          ['Inst. Esgoto e Águas Pluviais', inc.inst_esgoto],
+          ['Louças e Metais', inc.loucas_metais],
+          ['Complementos', inc.complementos],
+        ].map(([name, val]) => `
+          <tr>
+            <td>${name}</td>
+            <td>${val !== null && val !== undefined ? val.toFixed(2) + '%' : '—'}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+
+    ${data.cronograma && data.cronograma.length > 0 ? `
+    <div class="data-section">
+      <div class="data-section-title">📅 Cronograma Físico Financeiro (${data.prazo_execucao || '?'} meses)</div>
+      <table class="incidencia-table">
+        <tr><th>Etapa</th><th>% Parcela</th><th>% Acumulado</th></tr>
+        ${data.cronograma.map(e => `
+          <tr>
+            <td>Etapa ${e.etapa}</td>
+            <td>${e.percentual !== undefined ? e.percentual.toFixed(1) + '%' : '—'}</td>
+            <td>${e.acumulado !== undefined ? e.acumulado.toFixed(1) + '%' : '—'}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>` : ''}
+  `;
+
+  document.getElementById('result-subtitle').textContent =
+    `${Object.keys(data.incidencias||{}).length} incidências · cronograma com ${(data.cronograma||[]).length} etapas`;
+}
+
+function downloadExcel() {
+  if (!workbookData) return;
+  const blob = new Blob([new Uint8Array(workbookData)], {
+    type: 'application/vnd.ms-excel.sheet.macroEnabled.12'
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'RAE_PREENCHIDO_' + new Date().toLocaleDateString('pt-BR').replace(/\//g,'-') + '.xlsm';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function resetAll() {
+  files.base = null; files.lai = null; files.pci = null;
+  ['base','lai','pci'].forEach(t => {
+    document.getElementById('card-' + t).classList.remove('has-file');
+    document.getElementById('name-' + t).textContent = '';
+    document.getElementById('input-' + t).value = '';
+  });
+  ['prog-read','prog-extract','prog-fill','prog-export'].forEach(id => setProgress(id, ''));
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('progress-area').style.display = 'none';
+  document.getElementById('result-area').style.display = 'none';
+  document.getElementById('error-area').style.display = 'none';
+  document.getElementById('btn-process').disabled = true;
+  setStepActive(1);
+  extractedData = null; workbookData = null;
+}
 </script>
 </body>
 </html>
